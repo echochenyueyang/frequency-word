@@ -1,0 +1,2315 @@
+HNICAL PRODUCT DESCRIPTION         44/221 02-AXB 250 05/8-V2 Uen LX     
+LTE Mobility Management
+Contents 
+
+1 Introduction  
+1.1 Scope  
+1.2 Target Groups  
+
+2 
+Overview  
+2.1 Mobility and Connection Management States  
+
+3 
+Attach  
+3.1 Traffic Case  
+3.2 Attach Rejected  
+3.3 Selective Equivalent PLMN List  
+
+4 
+Detach  
+4.1 UE-Initiated Detach  
+4.2 HSS-Initiated Detach  
+4.3 MME-Initiated Detach  
+4.4 PGW-Initiated Detach  
+
+5 
+Paging  
+5.1 Paging Examples  
+5.2 Paging Procedure  
+5.3 Paging Failure  
+5.4 Smart Paging  
+5.5 Service Priority Based Paging  
+
+6 
+Service Request  
+6.1 Service Request Procedure  
+
+7 
+S1 Release  
+7.1 MME- or eNodeB-Initiated S1 Release  
+
+8 
+Mobility without Dataflow  
+8.1 Mobility Within an MME Service Area  
+8.2 Mobility between MME Service Areas  
+8.3 Mobility without Dataflow Rejected  
+
+9 
+Mobility with Dataflow  
+9.1 Mobility Within and between MME Service Areas  
+
+10 
+Mobility with Seamless Dataflow  
+10.1 Mobility with X2-Based Handover  
+10.2 Mobility with S1-Based Handover  
+
+11 
+Cell Change Reporting  
+11.1 Traffic Case  
+
+12 
+Static SGSN or MME Selection  
+12.1 Static SGSN Selection  
+12.2 Static MME Selection  
+
+13 
+Mobility Event Log  
+
+14 
+Multiple PLMN Support  
+
+15 
+Restrictions  
+15.1 Roaming Restrictions  
+15.2 Access Restrictions  
+15.3 Subscription-Based Restrictions  
+15.4 Handover Restriction List  
+15.5 Reject Cause Code for Undefined IMSI Number Series  
+15.6 CSG Restrictions  
+15.7 Inter-PLMN Mobility Restriction  
+
+16 
+Serving Network Change Report to GW  
+
+17 
+Network-provided Location  
+17.1 Network-provided Location in Mobility Management Procedures  
+17.2 Network-provided Location in Session Management Procedures  
+17.3 Network-provided Location in SRVCC Procedures  
+
+18 
+Network Names and Time Zones  
+18.1 Time Zones  
+
+19 
+TAI List  
+19.1 TAI List Based on Visited TAIs  
+19.2 TAI List Based on TAC List from DNS  
+
+20 
+T-ADS Procedure  
+
+21 
+Automatic Device Detection for LTE  
+
+22 
+Multiple SIM Subscription  
+22.1 Multiple SIM Support  
+22.2 Additional MSISDN Support  
+
+23 
+Resilience and Overload Protection  
+
+24 
+Operation and Maintenance  
+24.1 Parameters  
+24.2 Counters  
+24.3 Alarms and Events  
+24.4 Logs  
+24.5 EBM  
+
+25 
+Compliance  
+
+Reference List  
+
+
+1   Introduction
+This document describes mobility management for LTE access for the SGSN-MME.
+
+1.1   Scope
+The document covers the following areas:
+
+■Mobility management context for LTE access in the SGSN-MME
+■EPS Mobility Management (EMM) and the EPS Connection Management (ECM) states for a UE
+■Mobility management procedures
+■Traffic cases for procedures describing message exchange between the UE, the SGSN-MME, and other nodes in the network
+1.2   Target Groups
+This document is intended as an introduction to mobility management for the following target groups:
+
+■Network operators
+■Network and service planners
+■System engineers and administrators
+Basic knowledge of the EPS network, data communication, and telecommunication is required when using this document.
+
+2   Overview
+EPS mobility management for LTE access tracks the UE in the LTE Radio Access Network (RAN) and enables the UE to register in the network. The radio network for LTE has a dynamic cellular structure. Refer to Figure 1 for an overview of the dynamic cellular structure of LTE. The network must be aware of the location and the EMM state of the UE to maintain connectivity because the UE can move between cells, Tracking Areas (TAs), service areas, and PLMNs.
+
+Mobility management procedures can be either UE-initiated or RAN-initiated, depending on the capability of the networks. For more information about mobility management procedures, see SoC with 3GPP TS 23.401.
+
+
+
+Figure 1   Overview of the LTE Cellular Network Structure
+
+2.1   Mobility and Connection Management States
+The EMM states describe the EPS mobility management states that result from the EPS mobility management procedures, for example, the Attach and Detach procedures. The mobility management state describes the state of the UE from the perspective of the MME.
+
+Figure 2 shows the EMM states of UE in the EPS in the MME:
+
+■EMM-REGISTERED
+■EMM-DEREGISTERED
+
+
+Figure 2   EMM States
+
+The ECM states describe the signaling connectivity between the UE, the MME, and the Serving Gateway (SGW).
+
+Figure 3 shows the ECM states of the UE in the MME:
+
+■ECM-IDLE
+■ECM-CONNECTED
+
+
+Figure 3   ECM States
+
+The ECM and EMM states are independent of each other. For more information on EMM and ECM states, see SoC with 3GPP TS 23.401.
+
+2.1.1   EMM-REGISTERED
+The UE enters the EMM-REGISTERED state after a successful registration procedure, that is, an Attach procedure or a Tracking Area Update (TAU) procedure. In the EMM-REGISTERED state, the UE has one or several Packet Data Network (PDN) connections, and the UE can receive services that require registration in the EPS. The MME knows the current location of the UE with an accuracy of the tracking area list allocated to the UE.
+
+After a successful Detach procedure, the UE EMM state is changed to EMM-DEREGISTERED in the MME.
+
+If the MME rejects the Attach procedure, or if the TAU procedure is rejected, the state of the UE is set to EMM-DEREGISTERED.
+
+If the UE is emergency-attached, only IMS Emergency Service is allowed.
+
+2.1.2   EMM-DEREGISTERED
+A UE in the EMM-DEREGISTERED state is not attached. The EMM context in the MME holds no valid location information for the UE. The MME cannot reach the UE, as the UE location is not known. No EPS bearer exists for the subscriber. In the EMM-DEREGISTERED state, some UE information can be stored in the UE and MME.
+
+After a successful Attach or TAU procedure, the state is changed to EMM-REGISTERED.
+
+2.1.3   ECM-IDLE
+The UE is in ECM-IDLE state, which is also referred to as idle mode, when no NAS signaling connection between the UE and the network exists. No UE context exists in LTE for the UE in the ECM-IDLE state. Also, no UE-associated logical S1-MME connection exists for the UE in the ECM-IDLE state.
+
+2.1.3.1   Changing State from ECM-IDLE to ECM-CONNECTED
+The UE and the MME enter the ECM-CONNECTED state when the signaling connection is established between the UE and the MME. Initial NAS messages that initiate a transition from ECM-IDLE to ECM-CONNECTED state are the following:
+
+■Attach Request
+■Service Request
+■TAU Request with the Bearer Establishment Requested set to true
+2.1.3.2   Changing State from ECM-CONNECTED to ECM-IDLE
+If a UE changes state from ECM-CONNECTED to ECM-IDLE, a configurable mobile reachable timer is started. If the UE does not send a TAU Request message before the reachable timer expires, an implicit detach timer is started and the UE remains in ECM-IDLE state. The UE is implicitly detached only if the UE does not send a TAU Request message before the detach timer expires.
+
+A UE in ECM-IDLE state with only IMS Emergency Service is implicitly detached once the mobile reachable timer expires. Also, an unauthenticated UE that is emergency-attached is removed from the MME.
+
+2.1.4   ECM-CONNECTED
+For a UE in the ECM-CONNECTED state, a signaling connection between the UE and the MME exists. The signaling connection consists of two parts, one Radio Resource Control (RRC) connection between the UE and the eNodeB, and one UE-associated S1-MME connection between the eNodeB and the MME. The MME knows the UE location with an accuracy of eNodeB. The S1 Release procedure changes the state in both the UE and the MME from ECM-CONNECTED to ECM-IDLE.
+
+3   Attach
+To announce its presence in the network, the UE initiates an Attach procedure by signaling to the MME. The initiated Attach procedure can be an EPS Attach procedure or an emergency Attach procedure. The UE can identify itself by its Globally Unique Temporary Identity (GUTI), International Mobile Subscriber Identity (IMSI), or International Mobile Station Equipment Identity (IMEI). On completion of the Attach procedure, the UE is in EMM-REGISTERED state.
+
+The UE can also initiate the Attach procedure by sending an Attach Request message with a Combined Attach flag and the Attach type "Combined Attach". For more information about combined procedures, see EPS Support for CS Services.
+
+As a result of the Attach procedure, an EMM context exists in the MME and one default bearer is established between the UE and the PGW, meaning that one PDN connection is created. Dedicated bearers can also be activated during the Attach procedure on request of the PGW. For more information, see LTE Session Management.
+
+If additional PDN connections are requested, the PDN Connectivity procedure is used after the Attach procedure is completed. For more information about the PDN Connectivity procedure, see LTE Session Management.
+
+The Attach procedure is also used when a subscriber moves from a CDMA 2000 network to an LTE network. For more information, see Inter-System Mobility Management.
+
+3.1   Traffic Case
+The Attach procedure is shown in Figure 4 and is described below the figure.
+
+ 
+Figure 4   Attach Procedure
+
+The following steps describe the Attach procedure:
+
+1.The UE initiates the Attach procedure by sending an Attach Request message, including the IMSI, IMEI, or the GUTI and the last visited registered Tracking Area Identifier (TAI) (if available), through the eNodeB to the MME. The Attach Request message contains a PDN Connectivity Request message. For information about TAI list, see Section 19.
+Attach Request messages that indicate emergency are prioritized in instances of resource limitation.
+
+The MME also checks if access restrictions or roaming restrictions apply. If the UE is restricted, the Attach request is rejected. For more information, see Section 3.2. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1.
+
+2.If the UE attaches to a new MME (different from the one used at the last detach), the MME sends an Identification Request message to an old SGSN or MME to request the IMSI. The new MME derives the IP address of the old SGSN or MME either through static selection or a DNS query, depending on the configuration. In that case, the UE identifies itself with an old GUTI. For detailed information about the static SGSN or MME selection in MME, see Section 12.
+3.The old SGSN or MME responds with an Identification Response message containing the IMSI and Mobility Management (MM) context. The old SGSN or MME verifies the Attach Request message by the Packet Temporary Mobile Subscriber Identity (P-TMSI) signature or through an integrity check.
+The UE Radio Capability for Paging information may be included in the Identification Response message and transferred from the old MME to the new MME. For more information, see Massive IoT.
+
+If an Identification Response message is not received after a time specified by the T3ResponseIdentification parameter, the MME retransmits the Identification Request message a number of times specified by the N3RequestIdentification parameter. After the last retransmission, the IMSI number is instead fetched from the UE, according to the next step.
+
+4.If the UE is unknown to both the old SGSN or MME and the new MME, the new MME sends an Identity Request message to the UE to request the IMSI. This step also applies when the old SGSN or MME is not reachable or responds with failure.
+5.The UE responds with an Identity Response message containing the IMSI. The MME analyzes the IMSI of the UE to verify that the IMSI is part of an IMSI number series that is defined in the MME.
+6.Security functions can be performed, for example, to authenticate a subscriber. A security context is established, and ciphering and integrity protection are negotiated. The IMEI Check procedure can also be performed. When an unauthenticated UE requests an emergency-attach, security functions are handled differently. For more information, see Security. Also, if the GUTI is allocated by the current MME, the IMEI Check for GUTI Attach can be skipped. For more information, see Configuring IMEI Check.
+7.If the International Mobile Station Equipment Identity Software Version (IMEISV) received from the UE during the security functions procedure is different from the previous IMEISV (if available) and there is no Update Location Procedure, then the MME initiates a Notification Procedure to the HSS with the updated terminal information. For unauthenticated UEs requesting an emergency-attach, no Notification Procedure is triggered toward the HSS.
+8.The UE can set either value of the EPS Session Management (ESM) Information Transfer flag in the PDN Connectivity Request message: 
+■If ESM Information Transfer flag is set to 0, the MME does not send an ESM Information Request message to the UE.
+■If ESM Information Transfer flag is set to 1, the MME sends an ESM Information Request message to the UE to request ESM information and gets an ESM Information Response message including APN from the UE. The information is security-protected.
+Sending APN in a PDN Connectivity Request message is not secure when security is not yet turned on but sending APN in an ESM Information Response message is secure. In the case of an emergency-attach, the ESM Information Transfer flag is ignored.
+
+9.The UE sends an ESM Information Response message to the MME, containing the ESM information. The ESM information includes the Protocol Configuration Options (PCO), which need to be transferred security-protected, and a requested Access Point Name (APN) if necessary.
+10.If there is no valid subscription data for the UE in the new MME, the MME sends an Update Location Request message to the HSS to inform it about the identity of the MME currently serving the user and to get subscription data. For an unauthenticated UE requesting an emergency-attach, no Update Location Request message is sent to the HSS. The message contains the User State and Location information if the –aanh S6aAllowAdditionalNetLocHss parameter in modify_s6a command is set to true.
+11.The HSS sends an Update Location Answer message to the MME to update the MME subscription data. The MME validates the data and sets up a context for the UE. The MME also checks if Closed Subscriber Group (CSG) restrictions apply. If the UE is restricted, the Attach procedure is rejected. For more information about CSG restrictions, see Section 15.6.
+In the case of IMS Emergency Service, the Attach procedure continues despite a negative response from the HSS.
+
+12.The MME uses the subscription data to verify that the APN requested by the UE is allowed and determines which PGW to contact. For more information about APN resolving and PGW selection, see LTE Session Management. In the case of an emergency-attach, the MME emergency configuration data is used to determine the APN. The MME sends the Create Session Request message through the SGW to the PGW to start establishing a default EPS bearer.
+If the UE uses EPS services with Data over NAS (DoNAS), the MME includes an S11-GTP-U F-TEID in the Create Session Request message.
+
+For more information about emergency, see Configuring MMTel Service. For more information, see LTE Session Management.
+
+13.The PGW creates an entry in the EPS bearer context table and generates a Charging ID. After negotiating with the Policy and Charging Rules Function (PCRF), the PGW sends a Create Session Response message through the SGW to the MME.
+If a Combined Attach Request message was sent in Step 1 and the PreventCombinedRegistration parameter is set to false, continue with Step 14. Otherwise, continue with Step 16.
+
+14.The MME sends a Location Update Request message to the Mobile services Switching Center/Visitor Location Register (MSC/VLR).
+15.The MSC/VLR responds by sending a Location Update Accept message to the MME.
+16.The MME sends the Initial Context Setup Request message to the eNodeB.
+The Initial Context Setup Request message contains an Attach Accept message, which is forwarded to the UE. This message contains the Tunnel Endpoint Identifier (TEID) and the IP address of the SGW for user-plane traffic.
+
+A new GUTI is allocated.
+
+The Handover Restriction List IE and the Subscriber Profile ID IE for the Radio Access Technology (RAT) and frequency priority are defined by the RAT/Frequency Selection Priority (RFSP) value. If an RFSP value exists in the MME, it is also included in the Initial Context Setup Request message. If no RFSP value exists, the Subscriber Profile ID IE is not included in the message. For a home subscriber, the RFSP value from the HSS is used. For a roaming subscriber, the RFSP value in use is derived from the IMSI number series. The MME stores the RFSP value in use and the RFSP value received from the HSS.
+
+The MME does not send an Initial Context Setup Request message to a UE using EPS services with DoNAS, since no Radio Access Bearers (RABs) are established when DoNAS is used. Instead, the Attach Accept message is included in the Downlink NAS transport message. For more information about DoNAS, see Massive IoT.
+
+The MME includes the Activate Default EPS Bearer Request message in the Attach Accept message. For more information, see LTE Session Management. 
+
+The MME informs the UE of the supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the Attach Accept message. Supported features are based on the configuration of the MME.
+
+Note:  The MME sets the IMS VoPS bit in the EPS network feature support IE based on the configuration of the IMS Voice Service. Besides, for UEs with at least one non-emergency PDN, the MME also checks the subscribed IMS APN Configuration profile, the subscribed STN-SR, and the SRVCC capability of UE, which is controlled by the vops_based_on_ims_apn, vops_based_on_stn_sr, and vops_based_on_ue_srvcc_capability function parameters respectively.
+
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on configuring IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service, and IMSI Number Series (CLI).
+
+17.Optionally, the eNodeB sends the Initial Context Setup Response message to the MME, after the bearers toward the UE are set up. This message contains the TEID and the IP address of the eNodeB for user-plane traffic.
+18.The UE sends the Attach Complete message containing the identity of the bearers through the eNodeB to the MME.
+If a Combined Attach Request message was sent in Step 1, continue with Step 19 . Otherwise, continue with Step 20 .
+
+The UE also sends the Activate Default EPS Bearer Accept message to the MME in response to Step 16.
+
+19.In the case of a Combined Attach request, the MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+20.The MME sends a Modify Bearer Request message to the SGW, containing the TEID of the eNodeB and the IP address of the eNodeB.
+If the UE uses EPS services with DoNAS and an S11-GTP-U F-TEID is included in the Create Session Request message, the MME does not send a Modify Bearer Request message, unless required by other features.
+
+21.The SGW acknowledges the request by sending the Modify Bearer Response message, containing the identity of the bearers to the MME.
+22.Based on configuration, the MME can send a Notify Request message to the HSS.
+23.The HSS sends the Notify Response message back to the MME.
+3.2   Attach Rejected
+If the Attach procedure is rejected, either an Attach Reject message is sent to the UE, including the reason for the rejection, or the Attach procedure is ended without notifying the UE.
+
+The Attach procedure is ended without notifying the UE, for example, in cases when no S1-AP Initial Context Setup Response message is received during the Attach procedure. An Attach Reject message is sent, for example, if the MME detects a protocol error in the Attach Request message.
+
+If the Attach procedure is rejected based on roaming restrictions, an operator-configured cause code is sent to the UE. For more information, see Section 15.1.
+
+If the Attach procedure is rejected based on access restrictions, an operator-configured cause code is sent to the UE. For more information, see Section 15.2.
+
+If the Attach procedure is rejected based on CSG restrictions, a cause code is sent to the UE. For more information, see Section 15.6.
+
+If the Attach procedure is rejected based on the Operator Determined Barring (ODB) information in the subscription data, a cause code is sent to the UE. For more information, see Section 15.3.
+
+All Attach Reject messages owing to network failure are logged in the Mobility Event Log. For more information, see Mobility Event Log.
+
+If an Attach Complete message is not received from the UE after a time specified by the Attach Complete timer, the MME retransmits the Attach Accept message. After four retransmissions, with no Attach Complete message from the UE, the Attach procedure is ended and the UE is implicitly detached.
+
+The MME can be configured to throttle Attach Request messages.
+
+3.3   Selective Equivalent PLMN List
+A selective Equivalent PLMN List (EPL) can be configured to steer the UE into selecting a preferred equivalent PLMN from a group of networks at cell selection or relocation. If a selective EPL exists, the MME sends the UE a selective EPL in the Attach Accept and TAU Accept messages. A selective EPL contains a configurable number of equivalent PLMN Identifiers (IDs). Several unique EPLs can be set up in the MME. For each subscriber, one of these EPLs is selected by the MME, based on the IMSI number of the subscriber and the current TA within a Geographical Area. A Geographical Area consists of a predefined range of TAs. For information on how to configure a selective EPL, see Configuring a Selective Equivalent PLMN List for LTE Access.
+
+4   Detach
+The UE can be detached explicitly or implicitly.
+
+■During an explicit detach, the network or the UE explicitly requests the detach.
+■During an implicit detach, the network detaches the UE without notifying it. This is typically the case when the network presumes that it is not able to communicate with the UE, for example, owing to radio conditions.
+On completion of the Detach procedure, the UE is in EMM-DEREGISTERED state. If the UE is emergency-attached and unauthenticated, the UE is removed from the MME.
+
+All PDN connections are disconnected when the UE detaches from the network. If the UE or MME requests disconnection of specific PDN connections, the PDN Disconnection procedure is used. The Detach procedure is used when disconnecting the last PDN connection. For more information about the PDN Disconnection procedure, see LTE Session Management.
+
+4.1   UE-Initiated Detach
+The UE-Initiated Detach procedure is used by the UE to inform the network that it no longer requires access to the EPS, that is, to explicitly detach from the EPS. This procedure is started, for example, by the UE if the UE is switched off or if the USIM card is removed from the UE. If the UE is emergency-attached, it can regain normal services by detaching and reattaching.
+
+4.1.1   Traffic Case
+The UE-Initiated Detach procedure is shown in Figure 5 and is described below the figure.
+
+ 
+Figure 5   UE-Initiated Detach Procedure
+
+The following steps describe the UE-Initiated Detach procedure:
+
+1.The UE sends the Detach Request message including a Switch Off indicator to the MME. The Switch Off indicator shows if Detach is owing to a switch off situation or not.
+2.The MME sends a Delete Session Request message to deactivate the PDN connection in the SGW and PGW associated with the UE. One Delete Session Request message is sent through the SGW to the PGW for each PDN connection.
+3.The PGW acknowledges the request by sending the Delete Session Response message through the SGW to the MME.
+4.If Detach is not owing to a Switch Off situation, the MME sends a Detach Accept message to the UE.
+5.The MME releases the connection for the UE by sending the UE Context Release Command message to the eNodeB with the cause set to Detach.
+6.The eNodeB acknowledges the request by sending the UE Context Release Complete message to the MME.
+4.2   HSS-Initiated Detach
+The HSS uses the HSS-Initiated Detach procedure for operator-determined purposes to request the deletion of an EMM context of a subscriber in the MME. The HSS-Initiated Detach procedure, also called the Cancel Location procedure, is further described in Subscriber Data Management.
+
+4.2.1   Traffic Case
+The HSS-Initiated Detach procedure for connected mode is shown in Figure 6 and is described below the figure.
+
+ 
+Figure 6   HSS-Initiated Detach Procedure
+
+The following steps describe the HSS-Initiated Detach procedure:
+
+1.The HSS-Initiated Detach procedure is initiated by the HSS sending a Cancel Location Request message with the Cancellation Type Subscription Withdrawal to the MME. This is performed to request the immediate deletion of an EMM context of a subscriber.
+2.The MME responds by sending a Cancel Location Answer message to the HSS.
+3.The MME informs the UE that it is being detached by sending a Detach Request message. The Detach Request message includes the Detach Type IE and the optional EMM Cause IE. If the received Cancel Location Request message includes the CLR-Flags IE and the Reattach-Required bit in the CLR-Flags IE is set, the Detach Type IE is set to re-attach required and the EMM Cause IE is not included. Otherwise, the Detach Type IE is set to re-attach not required and the EMM Cause IE is set according to the value of the CcDetReqBySubWithdrawal parameter.
+For a UE with IMS Emergency Service, the MME sends a Deactivate EPS Bearer Context Request message to the UE, removing all non-emergency PDN connections. The UE then becomes emergency-attached. If the UE was already emergency-attached, no action is taken.
+
+4.The MME sends a Delete Session Request message to deactivate the PDN connection in the SGW and PGW associated with the UE. One Delete Session Request message is sent through the SGW to the PGW for each PDN connection.
+5.The PGW acknowledges the request by sending the Delete Session Response message through the SGW to the MME.
+6.The UE sends a Detach Accept or Deactivate EPS Bearer Context Response message to the MME.
+7.The MME releases the connection for the UE by sending the UE Context Release Command message to the eNodeB with the cause set to Detach.
+8.The eNodeB acknowledges the request by sending the UE Context Release Complete message to the MME.
+4.3   MME-Initiated Detach
+The MME-Initiated Detach procedure can be explicit or implicit. During an explicit detach, the MME-Initiated Detach procedure is used by the MME to inform the UE that it no longer has access to the EPS.
+
+When the UE is in ECM-IDLE state and is explicitly detached, the MME pages the UE before detaching it. For more information, see Section 5.2.1. When the UE is implicitly detached, the MME does not send the Detach Request message to the UE.
+
+The MME-Initiated Detach procedure is triggered by one of the following criteria:
+
+■The delete_subscriber CLI command in the MME
+■Release of the last PDN connection
+■The IMEI Check procedure
+■All PDN connections barred owing to application of the ODB function in the HSS
+■When the UE sends a Detach Request message from a CSG, it is not permitted to access.
+4.3.1   Traffic Case for Explicit Detach
+The MME-Initiated Detach procedure is shown in Figure 7 and is described below the figure.
+
+ 
+Figure 7   MME-Initiated Detach Procedure
+
+The following steps describe the MME-Initiated Detach procedure:
+
+1.The MME detaches the UE by sending a Detach Request message including the Detach Type to the UE. The Detach Type can be set to Re-attach, in which case the UE is requested to reattach after the Detach procedure is completed.
+If the MME-Initiated Detach procedure is triggered by the Delete Bearer Request message received from the SGW including the GTPv2 cause code PDN reconnection to this APN disallowed, and this is the last PDN connection, the Detach Request message includes the Detach Type IE, which is set to re-attach not required. The EMM Cause IE is also set according to the CcDetReqByPgwInitPdnDisc parameter.
+
+Note:  If the CcDetReqByPgwInitPdnDisc parameter is set to none, the EMM Cause IE is not included in the Detach Request message.
+
+
+2.The MME sends a Delete Session Request message to deactivate the PDN connection in the SGW and PGW associated with the UE. One Delete Session Request message is sent through the SGW to the PGW for each PDN connection.
+3.The PGW acknowledges the request by sending the Delete Session Response message through the SGW to the MME.
+4.If the UE receives the Detach Request message from the MME, the UE sends a Detach Accept message to the MME any time after Step 1.
+5.The MME releases the S1-MME signaling connection for the UE by sending the UE Context Release Command message to the eNodeB with the cause set to Detach. If the Detach Type is set to Re-attach, the UE reattaches after the RRC Connection Release is completed.
+6.The eNodeB acknowledges the request by sending the UE Context Release Complete message to the MME.
+7.If the delete_subscriber CLI command is used to trigger the Detach and no Reattach is required, the MME sends a Purge UE Request message to the HSS. The HSS sets the UE Purged flag and responds by sending the Purge UE Answer message to the MME. The message contains the User State and Location information if the –aanh S6aAllowAdditionalNetLocHss parameter in the modify_s6a CLI command is set to true.
+4.3.2   Implicit Detach
+The network detaches the UE implicitly without notifying it, either owing to expiry of the configuration-dependent implicit detach timer, which is started when the mobile reachable timer has expired, or owing to an irrecoverable radio error causing a loss of the logical link. The EMM mobility management context and PDN connections of the subscriber are deleted from the MME, but the GUTI, NAS security context, and the unused authentication data are kept.
+
+An Emergency-attached UE is implicitly detached, once the mobile reachable timer expires. Also, an unauthenticated UE that is emergency-attached is removed from the MME.
+
+4.4   PGW-Initiated Detach
+The PGW initiates a Detach procedure when the network initiates a PDN Disconnection procedure by which the last PDN connection of the UE is removed.
+
+For more information on the PGW-initiated PDN Disconnection (not the last PDN connection) procedure, see LTE Session Management.
+
+4.4.1   Traffic Case
+The PGW-Initiated Detach procedure is shown in Figure 8 and is described below the figure.
+
+ 
+Figure 8   PGW-Initiated Detach Procedure
+
+The following steps describe the PGW-Initiated Detach procedure:
+
+1.The PGW-Initiated Detach procedure is initiated by the PGW by sending a Delete Bearer Request message to the MME.
+2.The MME informs the UE that it is being detached by sending a Detach Request message. The Detach Request message includes the Detach Type IE which is set to re-attach required and does not include the EMM Cause IE.
+3.The UE sends a Detach Accept message to the MME.
+4.The MME releases the connection for the UE by sending the UE Context Release Command message to the eNodeB with the cause set to Detach.
+5.The eNodeB acknowledges the request by sending the UE Context Release Complete message to the MME.
+6.The MME sends the Delete Bearer Response message through the SGW to the PGW.
+Note:  For implicit detach, Step 2 to Step 5 are skipped.
+
+
+5   Paging
+Paging, also referred to as network-initiated service request, is used for signaling between the UE and the MME when the UE is in ECM-IDLE state. This procedure triggers the setup of the S1 connection and by that changes the state of the UE to ECM-CONNECTED.
+
+The operator can, to an extent, configure the Paging procedure to reduce the number of paging messages, which in turn can contribute to reduction in the network load. By reducing the number of paging messages, fewer resources are allocated to the MME. Available resources can be used for handling more users. Less paging also reduces the signaling in the radio access network.
+
+The Paging message carries the Assistance Data for Recommended Cells IE if the Recommended Cells for Paging IE is present in the UE Context Release Complete message received from the eNodeB during procedures such as S1 Release and TAU. 
+
+Paging is attempted only if the Paging Proceed Flag (PPF) is set to true.
+
+If the Configurable and Adaptive Paging feature is activated, the MME initiates the Paging procedure by going through the paging profile selection table. If the Configurable and Adaptive Paging feature is deactivated, the MME skips the paging profile selection table, and uses the default paging profile 1. The number of paging attempts can still be configured. An example of the paging profile selection table is shown in Table 1. The paging profile selection table identifies which paging profile in the paging profile table is used. The default paging profile table is shown in Table 2.
+
+The paging profile selection table is configured by the operator to fit the network configuration and the UE behavior. The selected paging profile is based on the configured parameter values. The current values of the parameters are compared with the table values, and the paging profile with a full row match is selected. If no paging profile selection table has been configured by the operator, the default paging profile selection with priority rule 100 and paging profile 1 is used. 
+
+The following information can be used for selecting a paging profile:
+
+■Time since the UE last reported its location
+■The Allocation/Retention Priority (ARP) priority level value
+■The value of the QoS Class Identifier (QCI) range
+■The Access Point Name (APN)
+■Number series of International Mobile Subscriber Identities (IMSIs)
+■Number series of International Mobile Station Equipment Identities (IMEIs)
+■Geographical Area Name (GAN)
+The QCI, APN, and ARP are related to individual bearers, therefore the MME needs to know which bearer is intended for paging. The MME finds the QCI, APN, and ARP using the EPS Bearer ID (EBI) IE, ARP IE, and Private Extension IE that are optionally included in the Downlink Data Notification (DDN) message, described as followed: 
+
+■QCI
+The MME uses the QCI stored in the MME and identified by the EBI. The EBI is obtained either from the EBI IE or from the Private Extension IE. If multiple EBIs are present in the DDN message, the MME uses the minimum QCI for paging profile selection.
+
+■APN
+The MME uses the APN stored in the MME and identified by the EBI. If multiple EBIs are present in the DDN message, the MME uses the corresponding APN for paging profile selection only when all the EPS Bearers belong to the same PDN connection.
+
+■ARP
+The MME obtains the ARP from different sources as follows:
+
+◦If the ARP IE is included in the DDN message, the MME uses the ARP in the ARP IE.
+◦If the ARP IE is not included in the DDN message but the EBI is available, the MME uses the ARP stored in the MME and identified by the EBI. If multiple EBIs are present in the DDN message, the MME uses the minimum ARP for paging profile selection.
+For SMS over SGs, the operator selects a paging profile that does not page the TA list directly and adds a row in the paging profile selection table including Time since UE location reportedMin/Max, IMSI ns, or IMEI ns that points to such a profile. If such row does not exist in the paging profile selection table, the default profile is selected. Alternatively, the operator adds a row in the paging selection table for this to alter the default paging profile. If the operator configured a profile for priority 100, that profile is used as the default. Otherwise, Ericsson predefined profile 1 is used as default.
+
+In some special areas like high-speed railway, operators can allocate high priority for the row including that GAN in the paging profile selection table. 
+
+Table 1    Example of a Paging Profile Selection Table Priority
+ Time since UE Location reportedMin 
+ Time since UE Location reportedMax 
+ ARPMin
+ ARPMax
+ QCIMin
+ QCIMax
+ APN
+ IMSI Number Series
+ IMEI Number Series
+ GAN
+ Comment
+ Paging Profile
+ 
+1
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ Ga1
+ High-speed railway
+ 1
+ 
+2
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ Ga2
+ High-speed railway
+ 2
+ 
+5
+ 0
+ 300
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 3
+ 
+10
+ NULL
+ NULL
+ 4
+ 4
+ NULL
+ NULL
+ ericsson.se.mnc015.mcc234.gprs
+ NULL
+ NULL
+ undefined
+ NULL
+ 2
+ 
+15
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ ericsson.se.mnc015.mcc234.gprs
+ NULL
+ NULL
+ undefined
+ NULL
+ 3
+ 
+20
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ 123456
+ NULL
+ undefined
+ NULL
+ 2
+ 
+25
+ NULL
+ NULL
+ 1
+ 3
+ 5
+ 5
+ ericsson2.se.mnc015.mcc234.gprs
+ 654321
+ 654323
+ undefined
+ EXAMPLE
+ 3
+ 
+30
+ NULL
+ NULL
+ NULL
+ NULL
+ 1
+ 1
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 1
+ 
+35
+ NULL
+ NULL
+ NULL
+ NULL
+ 2
+ 2
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 1
+ 
+40
+ NULL
+ NULL
+ NULL
+ NULL
+ 5
+ 5
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 2
+ 
+45
+ NULL
+ NULL
+ NULL
+ NULL
+ 9
+ 9
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 3
+ 
+50
+ NULL
+ NULL
+ 4
+ 15
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ undefined
+ NULL
+ 2
+ 
+100
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ NULL
+ undefined
+ DEFAULT
+ 1
+ 
+
+Note:  For more information on how to configure the paging profile selection table, see Configuring Adaptive Paging.
+
+
+Configuring the paging profile selection table reduces the number of paging messages. Finding the UE using paging profile 2 or 3 can be more time consuming if the UE is not located where it is expected.
+
+The target width of the paging profiles specifies the number of paging attempts, see Table 2.
+
+Table 2    Number of Paging Messages Sent per Target Width for Default Paging Profiles Paging Profile
+ Target Width
+ Paging Timer (T3413)(1)
+ 
+Last Visited eNodeB
+ Latest Visited eNodeB List
+ Last Visited Tracking Area
+ TAI List
+ 
+1
+ 0
+ 0
+ 0
+ 4 (2)
+ 3
+ 
+2
+ 0
+ 0
+ 2
+ 3
+ 3
+ 
+3
+ 2
+ 0
+ 2
+ 2
+ 3
+ 
+4
+ 0
+ 2
+ 2
+ 3
+ 2
+ 
+...
+ ...
+ ...
+ ...
+ ...
+ ...
+ 
+20
+ 3
+ 2
+ 3
+ 2
+ 4
+ 
+
+(1)  The Default Paging Timer Value for All Paging Profiles Is Defined by the S1T3413PagingTimer Parameter.
+
+
+(2)   Configurable Value
+
+
+
+
+The following paging profiles are available:
+
+■Paging profile 1
+If paging profile 1 is selected, all eNodeBs that are related to TAs listed in the TAI list of the UE receive a paging message. By default, four paging attempts are performed, unless the UE responds earlier. Paging profile 1 is recommended to use when short latency is critical or when a considerable amount of time has elapsed since the last contact with the UE. For IMS Emergency Service and CSFB, paging profile 1 is used independent of configuration.
+
+■Paging profile 2
+If paging profile 2 is selected, all eNodeBs that are related to the last visited TA of the UE receive a paging message. Two paging attempts are made, and if no Service Request message is received, all eNodeBs that are related to TAs listed in the TAI list receive a paging message. Paging profile 2 is recommended to use when the UE is expected to be in the same TA, but not necessarily in the same eNodeB. For information about TAI lists, see Section 19.
+
+■Paging profile 3
+If paging profile 3 is selected, a paging message is sent to the last visited eNodeB first. If the UE is not found after two paging attempts, all eNodeBs that are related to the last visited TA will receive two paging messages. If the UE is still not found, two paging messages are sent to all eNodeBs that are related to the TAs listed on the TAI list. Paging profile 3 is recommended when paging a UE that has recently been present in an eNodeB, and when short latency is not critical.
+
+Note:  Paging profiles 1–3 are default profiles and cannot be deleted. Only the number of paging attempts for the TAI list in paging profile 1 can be modified.
+
+
+■Paging profiles 4–20
+It is possible for the operator to create and configure paging profiles 4–20 in the paging profile table. This includes configuration of individual paging timer values for separate paging profiles with the ProfileT3413PagingTimer parameter. For information on how to create and modify paging profiles, see Configuring Adaptive Paging.
+
+5.1   Paging Examples
+The following two tables show examples of the number of paging attempts that are performed, and the number of paging messages that are sent depending on which paging profile is used. In these examples, the TAI list registered in the UE contains 5 TAs. Each TA contains 10 eNodeBs. The latest visited eNodeB list contains 5 eNodeBs.
+
+Example 1
+
+Table 3 illustrates the number of paging messages sent for a UE that has not moved from the last visited eNodeB. Each row in the table represents one paging profile. The UE is found equally fast, regardless of which paging profile is used. However, the number of paging messages differs a lot, in which case it is recommended to use paging profile 3.
+
+Table 3    Number of Paging Messages for a UE Remaining in the Last eNodeB Paging Profile
+ Paging Width
+ Paging Messages
+ Found
+ 
+1
+ TAI List
+ 50
+ Yes
+ 
+2
+ TA
+ 10
+ Yes
+ 
+3
+ eNodeB
+ 1
+ Yes
+ 
+4
+ Latest Visited eNodeB List
+ 5
+ Yes
+ 
+
+Example 2
+
+Table 4 illustrates the number of paging messages for a UE that has moved not only from its last visited eNodeB, but also to a new TA. In this example, the UE is found quickly and with a minimum of paging attempts if paging profile 4 is used. In this case, paging profile 3 would cause delay because the UE is not found until the entire TAI list is used, that is after the fifth round of paging attempts.
+
+Ericsson recommends using Paging profile 4 when the UE does not remain in the last visited eNodeB and a large TA is configured in the network, for example, a TA includes about 100 eNodeBs.
+
+Table 4    Number of Paging Messages for a UE Having Moved to a New TA Paging Profile
+ Paging Width
+ Paging Messages
+ Found
+ Total Number of Paging Messages
+ 
+1
+ TAI List
+ 50
+ Yes
+ 50
+ 
+2
+ TA × 2
+ 10 × 2 = 20
+ No
+ 70
+ 
+TAI List
+ 50
+ Yes
+ 
+3
+ eNodeB × 2
+ 1 × 2 = 2
+ No
+ 72
+ 
+TA × 2
+ 10 × 2 = 20
+ No
+ 
+TAI List
+ 50
+ Yes
+ 
+4
+ Latest Visited eNodeB List
+ 5
+ Yes
+ 5
+ 
+
+5.2   Paging Procedure
+Paging is performed when the MME receives signaling to a UE in the ECM-IDLE state, or through the MME when the MSC/VLR wants the UE to be paged. A Paging message is sent to the eNodeB(s) based on the selected paging profile.
+
+The following subsections describe example scenarios where paging is triggered by the MME, SGW, PGW, MSC/VLR, and HSS.
+
+5.2.1   Paging Triggered by the MME
+This section describes an example scenario where paging is triggered by an MME-initiated explicit detach when the UE is in the ECM-IDLE state.
+
+5.2.1.1   Traffic Case
+The Paging procedure triggered by an MME-initiated explicit detach is shown in Figure 9 and is described below the figure.
+
+ 
+Figure 9   Paging Triggered by an MME-Initiated Explicit Detach
+
+The following steps describe the Paging procedure triggered by an MME-initiated explicit detach:
+
+1.When the UE is in the ECM-IDLE state, the MME sends Paging messages to the eNodeB(s) based on the selected paging profile.
+The MME may include the UE Radio Capability for Paging IE and Assistance Data for Paging IE in the Paging message. For more information, see Massive IoT.
+
+2.If the eNodeB(s) receive the Paging messages from the MME, the UE is paged by the eNodeB(s). 
+3.The UE responds to the Paging message by sending a Service Request message to the MME to initiate the Service Request procedure. 
+For more information about the Service Request procedure, see Section 6.
+
+4.The MME sends a Detach Request message to the UE to initiate an explicit Detach procedure, as described in Section 4.3.
+5.2.2   Paging Triggered by the SGW
+This section describes an example scenario where paging is triggered by a DDN message sent on the S11 interface from an SGW as part of the network-triggered Service Request procedure when the UE is in the ECM-IDLE state.
+
+5.2.2.1   Traffic Case
+The Paging procedure triggered by a DDN message from the SGW is shown in Figure 10 and is described below the figure.
+
+ 
+Figure 10   Paging Triggered by a DDN Message from the SGW
+
+The following steps describe the Paging procedure triggered by a DDN message from the SGW:
+
+1.The SGW sends a DDN message to the MME. 
+The DDN message includes an ARP level possibly indicating that the procedure is MPS-classified. See Configuring Multimedia Priority Service for more information.
+
+2.The MME responds by sending a Downlink Data Notification Acknowledgement message to the SGW.
+3.When the UE is in the ECM-IDLE state, the MME sends Paging messages to the eNodeB(s) based on the selected paging profile.
+If the procedure is MPS-classified, the MME includes the Paging Priority IE in the Paging messages.
+
+The MME may include the UE Radio Capability for Paging IE and Assistance Data for Paging IE in the Paging messages. For more information, see Massive IoT.
+
+4.If the eNodeB(s) receive the Paging messages from the MME, the UE is paged by the eNodeB(s).
+5.The UE responds to the Paging message by sending a Service Request message to the MME to initiate the Service Request procedure. 
+For more information about the Service Request procedure, see Section 6.
+
+5.2.3   Paging Triggered by the PGW
+This section describes an example scenario where paging is triggered by a Create Bearer Request, Update Bearer Request, or Delete Bearer Request message from the PGW when the UE is in the ECM-IDLE state. Activation, update, or deletion of bearers continues after the Paging and the Service Request procedures are finished. For more information about activation, update, or deletion of bearers, see LTE Session Management.
+
+5.2.3.1   Traffic Case
+The Paging procedure triggered by the activation of bearers is shown in Figure 11 and is described below the figure. The Paging procedure triggered by the update or deletion of bearers is identical to this procedure.
+
+ 
+Figure 11   Paging Triggered by a Create Bearer Request Message from the PGW
+
+The following steps describe the Paging procedure triggered by a Create Bearer Request message from the PGW:
+
+1.The PGW initiates the activation of bearers by sending a Create Bearer Request message through the SGW to the MME. 
+The Create Bearer Request message includes an ARP level possibly indicating that the procedure is MPS-classified. See Configuring Multimedia Priority Service for more information.
+
+2.When the UE is in the ECM-IDLE state, the MME sends Paging messages to the eNodeB(s) based on the selected paging profile.
+If the procedure is MPS-classified, the MME includes the Paging Priority IE in the Paging messages.
+
+The MME may include the UE Radio Capability for Paging IE and Assistance Data for Paging IE in the Paging messages. For more information, see Massive IoT.
+
+3.If the eNodeB(s) receive the Paging messages from the MME, the UE is paged by the eNodeB(s).
+4.The UE responds to the Paging message by sending a Service Request message to the MME to initiate the Service Request procedure. 
+For more information about the Service Request procedure, see Section 6.
+
+5.The MME selects an EPS Bearer Identity, and then sends an E-RAB Setup Request message containing the EPS Bearer Identity to the eNodeB. The E-RAB Setup Request message contains one Activate Dedicated EPS Bearer Context Request message for each bearer to be set up.
+The activation of dedicated bearers continues, as described in LTE Session Management.
+
+5.2.4   Paging Triggered by the MSC/VLR
+This section describes an example scenario where paging is triggered by a Paging Request message for SMS from the MSC/VLR.
+
+5.2.4.1   Traffic Case
+The Paging procedure triggered by a Paging Request message from the MSC/VLR is shown in Figure 12 and is described below the figure.
+
+ 
+Figure 12   Paging Triggered by a Paging Request Message from the MSC/VLR
+
+The following steps describe the Paging procedure triggered by a Paging Request message from the MSC/VLR:
+
+1.The MSC/VLR sends a Paging Request message for SMS to the MME.
+2.When the UE is in the ECM-IDLE state, the MME sends Paging messages to the eNodeB(s) based on the selected paging profile.
+The MME may include the UE Radio Capability for Paging IE and Assistance Data for Paging IE in the Paging messages. For more information, see Massive IoT.
+
+3.If the eNodeB(s) receive the Paging messages from the MME, the UE is paged by the eNodeB(s).
+4.The UE responds to the Paging message by sending a Service Request message to the MME to initiate the Service Request procedure. 
+For more information about the Service Request procedure, see Section 6.
+
+5.The MME sends an SGsAP Service Request message to the MSC/VLR.
+The Mobile-Terminated Short Message Service (MT-SMS) procedure continues, as described in EPS Support for CS Services.
+
+5.2.5   Paging Triggered by the HSS
+This section describes an example scenario where paging is triggered by a Cancel Location Request message with the Cancellation Type IE set to Subscription Withdrawal from the HSS when the UE is in the ECM-IDLE state.
+
+5.2.5.1   Traffic Case
+The Paging procedure triggered by a Cancel Location Request message from the HSS is shown in Figure 13 and is described below the figure.
+
+ 
+Figure 13   Paging Triggered by a Cancel Location Request Message from the HSS
+
+The following steps describe the paging triggered by a Cancel Location Request message from the HSS:
+
+1.The HSS sends a Cancel Location Request message with the Cancellation Type IE set to Subscription Withdrawal to the MME.
+2.When the UE is in the ECM-IDLE state, the MME sends Paging messages to the eNodeB(s) based on the selected paging profile.
+The MME may include the UE Radio Capability for Paging IE and Assistance Data for Paging IE in the Paging messages. For more information, see Massive IoT.
+
+3.If the eNodeB(s) receive the Paging messages from the MME, the UE is paged by the eNodeB(s).
+4.The UE responds to the Paging message by sending a Service Request message to the MME to initiate the Service Request procedure. 
+For more information about the Service Request procedure, see Section 6.
+
+5.The MME sends a Detach Request message to the UE to initiate an explicit Detach procedure, as described in Section 4.3.
+5.3   Paging Failure
+Paging is not started or fails when an S1 connection cannot be established.
+
+Paging is not started in the following cases:
+
+■If PPF is set to false
+■If the UE is suspended
+Paging is started but fails in the following case:
+
+■If all paging retransmissions fail
+If paging fails because of no response from the UE, the MME initiates the Dedicated Bearer Deactivation procedure for Guaranteed Bit Rate (GBR) bearers.
+
+If the rejected Paging procedure was triggered by an MME-Initiated Detach procedure, the MME detaches the UE implicitly without notifying the UE.
+
+Without smart paging, if all paging retransmissions have failed and a new DDN arrives, the paging cycle starts again. For information on smart paging, see Section 5.4.
+
+5.4   Smart Paging
+Smart paging reduces the signaling load generated by unsuccessful Paging procedures in radio networks that have a massive paging load. By using smart paging for LTE access, the load on the E-UTRAN can be decreased. Smart paging allows customization of the paging in the network through configurable timers. When configuring the smart paging restrictions, it is important to consider the current network situation.
+
+Smart paging allows configuration of the following properties:
+
+■The time interval between the paging attempts
+A longer time interval between the paging attempts increases the possibility for the UE to reach coverage.
+
+■The quarantine time for Paging procedures triggered by DDN messages
+It is possible to increase the quarantine time gradually until the next Paging procedure triggered by a DDN message can begin.
+
+Note:  Other downlink signaling, including Create Bearer Request, Update Bearer Request, control plane signaling, and CS call, trigger a paging procedure immediately, even if the quarantine timer is running. This downlink signaling does not affect the timer.
+
+
+For smart paging, the following parameters can be configured using the create_s1_mme and the create_paging_profile CLI commands:
+
+■S1RepeatPaging
+■S1RepeatPagingStep
+■S1T3413PagingTimer
+■ProfileT3413PagingTimer
+Note:  The Configurable and Adaptive Paging feature must be enabled to allow configuration of the paging timer value per paging profile.
+
+
+During the paging quarantine time, the UE is unreachable, that is, a DDN message cannot trigger a new Paging procedure. Smart paging introduces a gradually increasing quarantine time that can be used to reduce the paging load by less frequent paging. The gradually increasing quarantine time is further described in Figure 14.
+
+
+
+Figure 14   Gradually Increased Quarantine Time
+
+The quarantine time is increased as follows:
+ 
+T1 S1RepeatPaging 
+ 
+T2 T1 + S1RepeatPagingStep 
+ 
+T3 T1 + 2 * S1RepeatPagingStep 
+ 
+T4 T1 + 3 * S1RepeatPagingStep 
+ 
+
+The Paging procedure is repeated using this pattern until the SGSN-MME receives an Initial UE message or the mobile reachable timer expires. If all retransmissions of the Paging Request message fail, the paging is rejected.
+
+5.5   Service Priority Based Paging
+Service Priority Based Paging enables the MME to prioritize the paging for specific services based on the ARP of the DDN message sent from the SGW. This enhancement is applicable only when the IMS-Based Telephony - MMTel feature is enabled.
+
+The MME does the following for high-priority services when receiving a DDN message that has an ARP priority equal to or higher than the priority configured through the PrioritizePagingBasedOnArp parameter:
+
+■The MME immediately starts a Paging procedure regardless of the paging quarantine timer.
+■When the MPS-classified ARP level is not configured, the MME ends the ongoing Paging procedure and starts a new Paging procedure if the ARP priority of the DDN message is higher than that of the previously received message.
+For more information on MPS-classified ARP level, see Quality of Service and Configuring Multimedia Priority Service.
+
+The MME obtains the ARP from the ARP IE of the DDN message. If the ARP IE is not available, the MME uses the ARP identified by the EBI.
+
+For the definition of ARP priority level, see Quality of Service. 
+
+For more information on how to configure Service Priority Based Paging, see Configuring MMTel Service.
+
+6   Service Request
+The UE-Initiated Service Request procedure is used when a UE in ECM-IDLE state attempts to send user data or short messages. It can also be used when the UE in ECM-IDLE state wants to send uplink signaling messages to re-establish one or several EPS bearers. The Service Request procedure is also used as a Paging Response message when preceded by a Paging procedure. For a description of the ECM-IDLE state, see Section 2.1.
+
+A successful UE-Initiated Service Request procedure changes the ECM state to ECM-CONNECTED, allowing the UE to send or receive data or signaling. Bearers that cannot be set up in the eNodeB or that cannot be updated in the SGW are removed. If default bearers cannot be set up in the eNodeB or be updated in the SGW, the PDN connections associated with them are removed. If no default bearers can be set up, the UE is detached with cause Re-attach Required. For a description of the ECM-CONNECTED state, see Section 2.1.
+
+A UE using Data over NAS can transfer user data in NAS PDUs, without setting up user plane data radio bearers in the RAN. For more information, see Massive IoT.
+
+6.1   Service Request Procedure
+The Service Request procedure is shown in Figure 15.
+
+ 
+Figure 15   Service Request Procedure
+
+The following steps describe the Service Request procedure:
+
+1.The Service Request procedure is initiated when the UE sends a Service Request message through the eNodeB to the MME. Service Request messages that indicate emergency are prioritized in instances of resource limitation.
+2.Security functions can be performed and the subscriber is authenticated. A security context is established, and ciphering and integrity protection are negotiated. For IMS Emergency Service, if the integrity check is approved for the UE, selective authentication is not applied. For more information about the integrity check and selective authentication, see Security.
+3.If the IMEISV received from the UE during the security functions procedure is different from the previous IMEISV (if available), the MME initiates a Notification Procedure to the HSS with the updated terminal information. For an unauthenticated UE, no Notification Procedure is triggered toward the HSS.
+4.The MME sends the Initial Context Setup Request message to the eNodeB. This message contains the TEID and the IP address of the SGW for user-plane traffic. 
+GUTI reallocation is performed, and the MME includes a GUTI Reallocation Command message in the Initial Context Setup Request to the UE, if the following criteria are fulfilled: 
+
+■ServiceRequestGutiReallocationEnabled for the UE’s IMSI number series is set to true.
+■The time elapsed since last GUTI reallocation is greater than the configured value for MMEGutiReallocationTimeLimit.
+For more information about the Initial Context Setup Request message, see LTE Session Management.
+
+For more information about GUTI reallocation, see Security.
+
+5.The eNodeB performs the Radio Bearer Establishment procedure. When the user-plane radio bearers are set up, the EPS bearer state is synchronized between the UE and the network, that is, the UE removes the EPS bearers for which no radio bearers are set up. The eNodeB sends the Initial Context Setup Response message to the MME. This message contains the TEID and the IP address of the eNodeB for user-plane traffic.
+6.The MME sends a Modify Bearer Request message to the SGW, containing the TEID of the eNodeB and the IP address of the eNodeB. The MME can also send a Modify Access Bearers Request message to the SGW if the following criteria are met: 
+■More than one PDN connection exists for the UE.
+■The SGW supports the Modify Access Bearers Request message.
+■The UseModifyAccessBearers parameter is set to on.
+7.The SGW acknowledges the request by sending the Modify Bearer Response message containing the identity of the bearers to the MME.
+8.If a GUTI Reallocation Command message was sent in step 4, the UE acknowledges the GUTI by sending GUTI Reallocation Complete message. The UE can send a GUTI Reallocation Complete message at any time after step 4. 
+7   S1 Release
+The S1 Release procedure is used to release the logical S1-AP signaling connection and all S1 bearers for the UE. The procedure changes the state of the UE from ECM-CONNECTED to ECM-IDLE and all UE-related context information is deleted from the eNodeB.
+
+7.1   MME- or eNodeB-Initiated S1 Release
+The MME initiates an S1 Release procedure in several different situations. Some examples of when the procedure is initiated are as follows:
+
+■During Detach
+■Toward the eNodeB when an S1-AP signaling connection needs to be removed, for example, after a TAU without an Active flag being set
+■In cases of CS-fallback
+The eNodeB initiates an S1 Release procedure in several different situations. Some examples of when the procedure is initiated are as follows:
+
+■When the radio connection with the UE is lost
+■When user inactivity occurs
+■When an unspecified failure occurs
+For possible causes for the S1 Release procedure, see section S1AP Cause Codes in EBM Cause Codes.
+
+Note:  S1 release history S1_RELEASE_HISTORY is recorded in EBM events L_SERVICE_REQUEST, L_TAU, L_ATTACH, and L_DETACH when the UE re-enters the ECM-CONNECTED state. For more details, see EBM Events and Parameters. The EBM information facilitates troubleshooting and eNodeB parameter tuning.
+
+
+7.1.1   Traffic Case
+The MME-Initiated or eNodeB-Initiated S1 Release procedure is shown in Figure 16 and is described below the figure.
+
+ 
+Figure 16   MME- or eNodeB-Initiated S1 Release Procedure
+
+The following steps describe the MME-Initiated or eNodeB-Initiated S1 Release procedure:
+
+1.If the release is initiated by the eNodeB, the eNodeB sends a UE Context Release Request message to the MME. The UE Context Release Request message contains the cause for the release.
+2.The MME sends a Release Access Bearers Request message to the SGW. The Release Access Bearers Request message optionally contains the Indication Flags IE. If the S1 release procedure is initiated by the eNodeB owing to an abnormal release of radio link, the MME sets the Abnormal Release of Radio Link bit in the Indication Flags IE to 1.
+3.The SGW releases all eNodeB related information for the UE and responds with a Release Access Bearers Response message to the MME.
+4.The MME releases the S1 connection by sending the UE Context Release Command message containing the cause of the release to the eNodeB.
+5.If the RRC connection is not already released, the eNodeB starts the RRC Connection Release procedure. Once the procedure is finished, the eNodeB deletes the UE context.
+6.The eNodeB confirms the S1 release by returning a UE Context Release Complete message to the MME.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+8   Mobility without Dataflow
+When the UE is in ECM-IDLE mode, that is, having no dataflow, a TAU procedure updates the MME with information on the TA in which the UE is located. The procedure is initiated by the UE when it enters a TA outside its current TAI list or when the periodic TAU timer has expired. For more information about TAU from an SGSN, see Inter-System Mobility Management.
+
+The TAU procedure can also be performed after an X2-Based Handover procedure or an S1-Based Handover procedure. For more information on performing the TAU procedure after an X2-Based Handover procedure, see Section 10.1; for more information on performing the TAU procedure after an S1-Based Handover procedure, see Section 10.2.
+
+The UE can also initiate an intra-MME TAU procedure by sending a Combined TAU Request message. For more information about combined procedures, see EPS Support for CS Services.
+
+For information about TAI lists, see Section 19.
+
+8.1   Mobility Within an MME Service Area
+UE-initiated mobility management procedures are performed when a UE in ECM-IDLE mode moves within an MME service area. Since the MMEs belong to the same service area, it is not required to reselect the MME.
+
+8.1.1   Periodic TAU
+The periodic TAU procedure is used by the UE to notify the MME about its existence. A periodic TAU procedure is performed when the UE stays within tracking areas that belong to the same TAI list and its periodic TAU timer expires. It is initiated when the MME receives a TAU Request message indicating a periodic update from the UE.
+
+8.1.1.1   Traffic Case
+The periodic TAU procedure is shown in Figure 17 and is described below the figure.
+
+ 
+Figure 17   Periodic TAU Procedure
+
+The following steps describe the periodic TAU procedure:
+
+1.When the periodic TAU timer expires, the UE sends a TAU Request message to the MME.
+The MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the TAU procedure is rejected, see Section 8.3. If the MME receives a periodic TAU request message from a UE with an emergency PDN connection, the emergency PDN connection is removed. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1.
+
+2.The MME sends a TAU Accept message to the UE. If the time elapsed since last GUTI reallocation is greater than the configured value MMEGutiReallocationTimeLimit, GUTI reallocation is performed. The MME also includes an EPS bearer context status IE in the TAU Accept message, indicating which EPS bearer contexts are active in the MME. The UE locally deactivates all those EPS bearer contexts that are active in the UE, but are indicated by the MME as being inactive.
+If an equivalent PLMN list exists in the MME for the UE in its target TA, the Equivalent PLMN IE is included in the TAU Accept message. For more information about Equivalent PLMN, see Section 3.3.
+
+The MME includes the EPS network feature support IE in the accept message if the IMS-Based Telephony - MMTel feature is activated and the PLMN is configured to support IMS Voice Service or IMS Emergency Service. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information about IMS Voice Service or IMS Emergency Service, see Features and Functions Management and Configuring MMTel Service.
+
+3.If the GUTI has been reallocated, the UE sends a TAU Complete message to the MME.
+4.The MME sends a UE Context Release Command message to the eNodeB.
+5.The eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+8.1.2   Intra-MME TAU without SGW Relocation
+An intra-MME TAU without SGW relocation procedure is performed when the UE moves to a TA not included in its TAI list, and the new TA is within the same SGW and MME service areas.
+
+The MME analyzes the GUTI and verifies that it belongs to the same MME.
+
+8.1.2.1   Traffic Case
+The intra-MME TAU without SGW relocation procedure is shown in Figure 18 and is described below the figure.
+
+ 
+Figure 18   Intra-MME TAU without SGW Relocation Procedure
+
+The following steps describe the intra-MME TAU procedure:
+
+1.The intra-MME TAU procedure is initiated when the MME receives a TAU Request message from the UE, indicating a normal TAU.
+The MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the TAU procedure is rejected, see Section 8.3. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information on IMS Emergency Service, see Configuring MMTel Service.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The UE can also send a Combined TAU Request message. For more information on combined procedures, see EPS Support for CS Services.
+
+The Active flag in the TAU Request message means that the UE is requesting bearer establishment. The MME initiates the setting up of bearers. For more information on TAU with the Active flag set, see Section 9.1.1 and LTE Session Management.
+
+2.The MME can perform security functions to authenticate the subscriber. A security context is established, and ciphering and integrity protection are negotiated. The IMEI Check procedure can also be performed. For more information on security functions, see Security.
+3.If the IMEISV that is received from the UE during the security functions procedure is different from the previous IMEISV (if available) and there is no Update Location Procedure later, the MME initiates a Notification Procedure to the HSS with the updated terminal information. For an unauthenticated UE performing a TAU procedure with an emergency PDN connection, no Notification Procedure is triggered toward the HSS.
+4.If the MME detects that the UE is in suspended status, and no Modify Bearer Request message is sent to the SGW, the MME sends a Resume Notification message to the SGW to resume the suspended non-GBR bearers for each PDN connection.
+5.The SGW responds by sending a Resume Acknowledge message to the MME.
+6.The MME sends an Update Location Request message to inform the HSS to get subscription data if the UE relocates to a different PLMN and the IMSI of the UE is part of the regional subscription feature configuration. The message contains the User State and Location information, if the –aanh S6aAllowAdditionalNetLocHss parameter in modify_s6a command is set to true.
+For an unauthenticated UE performing a TAU request with an emergency PDN connection, no Update Location Request message is sent to the HSS. 
+
+7.The HSS sends an Update Location Answer message to the MME, acknowledging the new location of the UE. The new MME checks if CSG restrictions apply. If the UE is restricted, the TAU procedure is rejected. The new MME updates subscription data and sets up a context for the UE.
+If the Location Area has changed, a Combined TAU Request message was sent in Step 1, and the PreventCombinedRegistration parameter is set to false, continue with Step 8. Otherwise, continue with Step 10.
+
+For more information about CSG restrictions, see Section 15.6.
+
+8.The MME sends a Location Update Request message to the MSC/VLR.
+9.The MSC/VLR answers by sending a Location Update Accept message to the MME.
+10.The MME sends a TAU Accept message to the UE. If the time elapsed since last GUTI reallocation is greater than the configured value MMEGutiReallocationTimeLimit, or if the UE moves to a different PLMN served by the same MME in the case of Multiple PLMN Support, then GUTI reallocation is also performed.
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the TAU Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on how to configure IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+11.If the GUTI has been reallocated, the UE acknowledges the new GUTI and returns a TAU Complete message to the MME.
+12.If a Combined TAU Request message was sent in Step 1, the MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+13.The MME sends a UE Context Release Command message to the eNodeB.
+14.The eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+8.1.3   Intra-MME TAU with SGW Relocation
+An intra-MME TAU with SGW relocation procedure is performed when the UE moves to a TA not included in its TAI list, and the new TA is within the same MME service area, but is served by a new SGW.
+
+The MME analyses the GUTI and verifies that it belongs to the same MME.
+
+8.1.3.1   Traffic Case
+The intra-MME TAU with SGW relocation procedure is shown in Figure 19 and is described below the figure.
+
+ 
+Figure 19   Intra-MME TAU with SGW Relocation Procedure
+
+The following steps describe the intra-MME TAU with SGW relocation procedure:
+
+1.The intra-MME TAU procedure is initiated when the MME receives a TAU Request message from the UE, indicating a normal TAU.
+The MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the TAU procedure is rejected, see Section 8.3. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information on IMS Emergency Service, see Configuring MMTel Service.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The UE can also send a Combined TAU Request message. For more information on combined procedures, see EPS Support for CS Services.
+
+The Active flag in the TAU Request message means that the UE is requesting bearer establishment. The MME initiates the setting up of bearers. For more information on TAU with the Active flag set, see Section 9.1.1 and LTE Session Management.
+
+2.The MME can perform security functions to authenticate the subscriber. A security context is established, and ciphering and integrity protection are negotiated. The IMEI Check procedure can also be performed. For more information on security functions, see Security.
+3.If the IMEISV that is received from the UE during the security functions procedure is different from the previous IMEISV (if available) and there is no Update Location Procedure later, the MME initiates a Notification Procedure to the HSS with the updated terminal information. For an unauthenticated UE performing a TAU procedure with an emergency PDN connection, no Notification Procedure is triggered toward the HSS.
+4.The MME sends a Create Session Request message to the target SGW. One Create Session Request message is sent for each PDN connection. The target SGW begins to establish PDN connections. PDN connections that cannot be established are removed together with the bearers related to them. If all default bearers fail to be established in the SGW, the TAU is rejected.
+5.The target SGW sends a Create Session Response message to the MME.
+6.The MME sends an Update Location Request message to inform the HSS to get subscription data if the UE relocates to a different PLMN and the IMSI of the UE is part of the regional subscription feature configuration. The message contains the User State and Location information, if the –aanh S6aAllowAdditionalNetLocHss parameter in modify_s6a command is set to true.
+For an unauthenticated UE performing a TAU request with an emergency PDN connection, no Update Location Request message is sent to the HSS.
+
+7.The HSS sends an Update Location Answer message to the MME, acknowledging the new location of the UE. The new MME checks if CSG restrictions apply. If the UE is restricted, the TAU procedure is rejected. The new MME updates subscription data and sets up a context for the UE.
+If the Location Area has changed, a Combined TAU Request message was sent in Step 1, and the PreventCombinedRegistration parameter is set to false, continue with Step 8. Otherwise, continue with Step 10.
+
+For more information about CSG restrictions, see Section 15.6.
+
+8.The MME sends a Location Update Request message to the MSC/VLR.
+9.The MSC/VLR answers by sending a Location Update Accept message to the MME.
+10.The MME sends a TAU Accept message to the UE. The MME also includes an EPS bearer context status IE in the TAU Accept message, indicating which EPS bearer contexts are active in the MME.
+If the time elapsed since last GUTI reallocation is greater than the configured value MMEGutiReallocationTimeLimit, or if the UE moves to a different PLMN served by the same MME in the case of Multiple PLMN Support, then GUTI reallocation is also performed.
+
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the TAU Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+11.If the GUTI has been reallocated, the UE acknowledges the new GUTI and returns a TAU Complete message to the MME.
+12.If a Combined TAU Request message was sent in Step 1, the MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+13.The MME sends a Delete Session Request message to the source SGW.
+14.The source SGW responds to the MME with a Delete Session Response message.
+15.The MME sends a UE Context Release Command message to the eNodeB.
+16.The eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+8.2   Mobility between MME Service Areas
+UE-initiated mobility management procedures are also performed when a UE in ECM-IDLE mode moves to a new MME service area. In this case, the MME is reselected.
+
+8.2.1   Inter-MME TAU without SGW Relocation
+An inter-MME TAU procedure without SGW relocation is performed when the UE moves to a TA not included in its TAI list, and the new TA is within the same SGW service area, but is served by a new MME.
+
+8.2.1.1   Traffic Case
+The inter-MME TAU without SGW relocation procedure is shown in Figure 20 and is described below the figure.
+
+ 
+Figure 20   Inter-MME TAU without SGW Relocation Procedure
+
+The following steps describe the inter-MME TAU without SGW relocation procedure:
+
+1.The UE initiates the TAU procedure by sending a TAU Request to the new MME through the eNodeB. The MME performs a static selection or a DNS query to find the IP address of the old MME, depending on the configuration. For detailed information about the static selection, see Section 12.depending on the configuration. For detailed information about the static selection, see Section 12. TAU Request messages that indicate emergency are prioritized in the event of resource limitation.
+The UE can also initiate an inter-MME TAU procedure by sending a Combined TAU Request message. For more information about combined procedures, see EPS Support for CS Services.
+
+The new MME checks if the Inter-PLMN Mobility Restriction function applies. If the PLMN is restricted, the TAU procedure is rejected. For more information about Inter-PLMN Mobility Restriction, see Section 15.7.
+
+If the Active flag is set in the TAU Request message, that is, bearer establishment is requested by the UE, then the MME initiates the setting up of bearers. For more information, see Section 9.1.1 and LTE Session Management.
+
+2.The new MME sends a Context Request message to the old MME to retrieve the mobility management and EPS bearer context for the UE. The Context Request message includes the complete TAU Request message and the old GUTI from the UE.
+If the UE has established any dedicated bearers, the new MME checks if the licensed feature, Network-initiated Dedicated Bearers, is activated. If the feature is activated, dedicated bearers are allowed to continue. If the feature is not activated, the existing dedicated bearers are marked to be deleted. For more information, see Features and Functions Management.
+
+3.The old MME verifies the UE based on the information in the TAU Request message and sends a Context Response message containing the mobility management and EPS bearer context to the new MME. The old MME can be configured to send or not to send an emergency PDN connection if the new MME is in a different PLMN. Non-emergency PDN connections, if any, are always sent. A Context Response message is sent to the new MME in all cases, regardless of whether it contains any PDN connections.
+The UE Radio Capability for Paging information may be included in the Context Response message and transferred from the old MME to the new MME. For more information, see Massive IoT.
+
+The new MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the TAU procedure is rejected, see Section 8.3. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information on how to configure the MME to send an emergency PDN connection between PLMNs, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. If the new MME does not receive or cannot retain any PDN connections from the old MME, the TAU procedure is rejected. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+4.The new MME can perform security functions to authenticate the subscriber. A security context is established, and ciphering and integrity protection are negotiated. The IMEI Check procedure can also be performed. For more information on security functions, see Security.
+The old MME starts a 20-second timer.
+
+5.The new MME sends a Context Acknowledge message to the old MME, acknowledging the Context Response message and indicating that the SGW does not need to be reselected.
+6.The new MME sends a Modify Bearer Request message to the SGW.
+7.The SGW returns a Modify Bearer Response message to the new MME to acknowledge the request.
+8.The new MME sends an Update Location Request message to inform the HSS if the MME relocation and to get subscription data. For an unauthenticated UE performing a TAU request with an emergency PDN connection, no Update Location Request message is sent to the HSS. The message contains the User State and Location information, if the –aanh S6aAllowAdditionalNetLocHss parameter in modify_s6a command is set to true.
+9.The HSS identifies the old UE location in its database and sends a Cancel Location message to the old MME.
+10.The old MME sends a Cancel Location Acknowledge message to the HSS.
+11.The HSS sends an Update Location Answer message to the new MME, acknowledging the new location of the UE. The new MME checks if CSG restrictions apply. If the UE is restricted, the TAU procedure is rejected. The new MME updates subscription data and sets up a context for the UE. For more information about CSG restrictions, see Section 15.6
+If the location area has changed, a Combined TAU Request message was sent in Step 1, and the PreventCombinedRegistration parameter is set to false, continue with Step 12. Otherwise, continue with Step 14. 
+
+12.The new MME sends a Location Update Request message to the MSC/VLR.
+13.The MSC/VLR responds with a Location Update Accept message.
+14.The MME sends a TAU Accept message to the UE, including a new GUTI. The UE deactivates all EPS bearer contexts locally that are active in the UE, but are indicated as inactive in the new MME. Dedicated bearers which were previously marked for deletion are deactivated.
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the TAU Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on how to configure IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+15.The UE acknowledges the new GUTI and returns a TAU Complete message to the new MME.
+16.If a Combined TAU Request message was sent in Step 1, the new MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+17.The new MME sends a UE Context Release Command message to the eNodeB.
+18.The eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message and the UE state changes into ECM-IDLE.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+When the 20-second timer expires in the old MME, the subscriber record is deleted in the old MME.
+
+8.2.2   Inter-MME TAU with SGW Relocation
+An inter-MME TAU procedure with SGW relocation is performed when the UE moves to a TA not included in its TAI list, and the new TA is served by a new MME and SGW.
+
+8.2.2.1   Traffic Case
+The inter-MME TAU with SGW relocation procedure is shown in Figure 21 and is described below the figure.
+
+ 
+Figure 21   Inter-MME TAU with SGW Relocation Procedure
+
+The following steps describe the inter-MME TAU with SGW relocation procedure:
+
+1.The UE initiates the TAU procedure by sending a TAU Request to the new MME through the eNodeB. The MME performs static selection or a DNS query to find the IP address of the old MME, depending on the configuration. For detailed information about the static selection, see Section 12. TAU Request messages that indicate emergency are prioritized in the event of resource limitation.
+The UE can also initiate an inter-MME TAU procedure by sending a Combined TAU Request message. For more information about combined procedures, see EPS Support for CS Services.
+
+The new MME checks if the Inter-PLMN Mobility Restriction function applies. If the PLMN is restricted, the TAU procedure is rejected. For more information about Inter-PLMN Mobility Restriction, see Section 15.7.
+
+If the Active flag is set in the TAU Request message, that is, bearer establishment is requested by the UE, then the MME initiates the setting up of bearers. For more information, see Section 9.1.1 and LTE Session Management.
+
+2.The new MME sends a Context Request message to the old MME to retrieve the mobility management and EPS bearer context for the UE. The Context Request message includes the complete TAU Request message and the old GUTI from the UE.
+If the UE has established any dedicated bearers, the new MME checks if the licensed feature, Network-initiated Dedicated Bearers, is activated. If the feature is activated, dedicated bearers are allowed to continue. If the feature is not activated, the existing dedicated bearers are marked to be deleted. For more information, see Features and Functions Management.
+
+3.The old MME verifies the UE based on the information in the TAU Request message and sends a Context Response message containing the mobility management and EPS bearer context to the new MME. The old MME can be configured to send or not to send an emergency PDN connection if the new MME is in a different PLMN. Non-emergency PDN connections, if any, are always sent. A Context Response message is sent to the new MME in all cases, regardless of whether it contains any PDN connections.
+The UE Radio Capability for Paging information may be included in the Context Response message and transferred from the old MME to the new MME. For more information, see Massive IoT.
+
+Based on the Context Response message received from the old MME, the new MME determines that the source SGW cannot continue to serve the UE and reselects the SGW. If IMSI-based SGW selection is configured, the MME selects the SGW based on the IMSI or IMSI number series. Otherwise, if the Static Gateway Selection function is enabled, the MME finds the SGW from the local SGW selection table. If no SGW is selected by using the static gateway selection function or the static gateway selection function is disabled, the MME performs a DNS query to get a list of SGW candidate hostnames. For more information on gateway selection, see LTE Session Management.
+
+The new MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the TAU procedure is rejected, see Section 8.3. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information on how to configure the MME to send an emergency PDN connection between PLMNs, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+4.The new MME can perform security functions to authenticate the subscriber. A security context is established, and ciphering and integrity protection are negotiated. The IMEI Check procedure can also be performed. For more information on security functions, see Security.
+5.The new MME sends a Context Acknowledge message to the old MME, including an SGW Change Indication, acknowledging the Context Response message and indicating that the SGW has been reselected.
+6.The new MME sends a Create Session Request message to the target SGW. One Create Session Request message is sent for each PDN connection. The target SGW begins to establish PDN connections. PDN connections that cannot be established are removed together with the bearers related to them. If all default bearers fail to be established in the SGW, the TAU is rejected.
+7.The target SGW assigns one IP address and TEID for each bearer and sends a Modify Bearer Request message to the PGW for each PDN connection. The Modify Bearer Request message contains the following information for downlink traffic for the accepted EPS Bearers: 
+■The SGW IP address and TEIDs
+8.The PGW updates its context field and sends a Modify Bearer Response message to the target SGW.
+9.The target SGW concludes the bearer activation by sending a Create Session Response message to the new MME.
+10.When the 20-second timer expires, the old MME sends a Delete Session Request message to the source SGW to delete all active PDN connections locally.
+11.The source SGW deletes all PDN connections locally and acknowledges this by sending a Delete Session Response message to the source MME.
+12.The new MME sends an Update Location Request message to inform the HSS about the MME relocation and to get subscription data. For an unauthenticated UE performing a TAU request with an emergency PDN connection, no Update Location Request message is sent to the HSS. The message contains the User State and Location information if the –aanh S6aAllowAdditionalNetLocHss parameter in modify_s6a command is set to true.
+13.The HSS identifies the old UE location in its database and sends a Cancel Location message to the old MME.
+14.The old MME sends a Cancel Location Acknowledge message to the HSS.
+15.The HSS sends an Update Location Answer message to the new MME, acknowledging the new location of the UE. The new MME checks if CSG restrictions apply. If the UE is restricted, the TAU procedure is rejected. The new MME updates subscription data and sets up a context for the UE. For more information about CSG restrictions, see Section 15.6.
+If the Location Area has changed, a Combined TAU Request message was sent in Step 1, and the PreventCombinedRegistration parameter is set to false, continue with Step 16. Otherwise, continue with Step 18.
+
+16.The new MME sends a Location Update Request message to the MSC/VLR.
+17.The MSC/VLR responds with a Location Update Accept message.
+18.The MME sends a TAU Accept message to the UE, including a new GUTI. The UE deactivates all EPS bearer contexts locally that are active in the UE, but are indicated as inactive in the new MME. Dedicated bearers which were previously marked for deletion are deactivated.
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the TAU Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on how to configure IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+19.The UE acknowledges the new GUTI and returns a TAU Complete message to the new MME.
+20.If a Combined TAU Request message was sent in Step 1, the new MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+21.The new MME sends a UE Context Release Command message to the eNodeB.
+22.The eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message and the UE state changes into ECM-IDLE.
+The MME stores the Coverage Enhancement related information, if the Coverage Enhancement related information is present in the UE Context Release Complete message. For more information, see Massive IoT.
+
+When the 20-second timer expires in the old MME, the subscriber record is deleted in the old MME.
+
+8.3   Mobility without Dataflow Rejected
+If the TAU Request message is not accepted, one of the following happens:
+
+■The TAU procedure is ended without notifying the UE.
+■A TAU Reject message, including a cause for rejection, is sent to the UE.
+If some of the dedicated bearers failed to setup in the eNodeB or could not be modified in the SGW, these bearers are deactivated.
+
+If a default bearer failed to setup in the eNodeB or was not modified in the SGW, this particular PDN connection is disconnected. If all default bearers failed to setup in the eNodeB or is not modified in the SGW, the UE is explicitly detached with cause Re-attach Required.
+
+9   Mobility with Dataflow
+Mobility with dataflow includes, for example, cases when the UE is in ECM-CONNECTED state and a handover procedure cannot be performed. If a handover cannot be performed, a TAU can be performed with the Active Flag set. Setting the Active Flag means that the S1 connection between the MME and the eNodeB is kept after the TAU procedure is completed and updated against the SGW.
+
+9.1   Mobility Within and between MME Service Areas
+This section describes the intra-MME TAU and inter-MME TAU procedures with the Active Flag set.
+
+9.1.1   Intra- and Inter-MME TAU with Active Flag Set
+When the Active Flag is set in the TAU Request message, the NAS signaling connection is kept. The Intra- and Inter-MME TAU with Active Flag set is shown in Figure 22 and described below the figure.
+
+ 
+Figure 22   Intra- and Inter-MME TAU with Active Flag Set
+
+The following steps describe the Intra- and Inter-MME TAU with Active Flag set procedure:
+
+1.The MME sends an Initial Context Setup Request message to the eNodeB.
+2.The Initial Context Setup Request message contains a TAU Accept message, which the eNodeB forwards to the UE.
+3.The eNodeB responds by sending the Initial Context Setup Response message to the MME.
+4.The MME sends one Modify Bearer Request message for each PDN connection to the SGW.
+The Modify Bearer Request message contains the following:
+
+■The identity of the bearers
+■The IP address and TEID for user-plane traffic
+5.The SGW responds with a Modify Bearer Response message to the MME.
+10   Mobility with Seamless Dataflow
+When the UE moves within a TA or between TAs while there are ongoing data sessions and the Radio Access Network (RAN) detects the move before the UE has initiated a TAU procedure, the RAN initiates a handover procedure between the eNodeBs to avoid service interruption. The RAN also initiates a handover in case there is insufficient radio coverage. The UE is in EMM-REGISTERED and ECM-CONNECTED states.
+
+Handover over the X2 interface is preferred, and occurs if there is an X2 interface between the eNodeBs. For more information, see Section 10.1.
+
+In case, there is no X2 interface between the eNodeBs, a handover is performed over the S1 interface. For more information, see Section 10.2.
+
+The MME handles handover interference which can happen between X2-based or S1-based handovers and MME-originated signaling. For more information on handover procedures, see SoC with 3GPP TS 23.401.
+
+10.1   Mobility with X2-Based Handover
+An X2-based handover procedure occurs when the UE moves between two cells and an X2 interface exists between the source eNodeB and the target eNodeB. An X2-based handover procedure is initiated by the RAN and is divided into three phases:
+
+■Handover preparation
+■Execution
+■Completion
+In the first two phases, the source eNodeB and target eNodeB have already prepared and executed the handover through control signaling over the X2 interface before informing the MME that the handover has taken place. The third phase is described in the X2-based handover without SGW relocation procedure (see Section 10.1.1) and X2-based handover with SGW relocation procedure (see Section 10.1.2).
+
+For more information about CSG restrictions, see Section 15.6.
+
+Note:  Handover to a CSG cell in another PLMN always fails.
+
+
+10.1.1   Intra-MME X2-Based Handover without SGW Relocation
+An intra-MME X2-based handover without SGW relocation procedure is performed when the UE moves between cells within the same MME and SGW serving areas.
+
+10.1.1.1   Traffic Case
+The intra-MME X2-based handover without SGW relocation procedure is shown in Figure 23 and described below the figure.
+
+ 
+Figure 23   Intra-MME X2-Based Handover without SGW Relocation Procedure
+
+The following steps describe the intra-MME X2-based handover without SGW relocation procedure:
+
+1.The target eNodeB sends a Path Switch Request message to inform the MME that the UE has changed eNodeBs. This message contains a list of EPS bearers, eNodeB IP addresses, and TEIDs. The MME performs the following: 
+■Validate the information
+■Release the connection to the source eNodeB implicitly
+If the TA has changed, the MME checks if access restrictions or roaming restrictions apply. The MME also checks if CSG restrictions apply. If the UE is restricted, the X2-Based Handover fails, see Section 10.1.1.2. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information about CSG restrictions, see Section 15.6.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service.
+
+2.The MME sends a Modify Bearer Request message to the SGW for each PDN connection. The Modify Bearer Request message contains the following information for the accepted EPS bearers: 
+■The eNodeB IP addresses and TEIDs at the target eNodeB
+3.The SGW starts sending downlink packets to the target eNodeB and sends a Modify Bearer Response message to the MME.
+4.The MME confirms the handover by sending a Path Switch Request Acknowledge message to the target eNodeB. If the Aggregated Maximum Bit Rate of the UE (UE-AMBR) is changed, the MME provides the updated value to the target eNodeB in the Path Switch Request Acknowledge message. This message can also contain the EPS bearers that failed to be established. The MME releases the failed dedicated bearers by triggering the bearer release procedure in the SGW. Failed PDN connections are removed through the SGW.
+If the ErabToBeSwitchedInUplinkListAlwaysIncluded parameter is set to true, then the Path Switch Request Acknowledge message also contains the SGW IP addresses and TEIDs for uplink traffic.
+
+5.The successful handover triggers the target eNodeB to send a Release Resources message to the source eNodeB. Unsuccessful EPS bearers are released.
+6.If the UE moves to a TA not included in its TAI list, the MME receives a TAU Request message from the UE.
+The UE can also send a Combined TAU Request message. If the Location Area has changed, a Combined TAU Request message is sent, and the PreventCombinedRegistration parameter is set to false, continue with Step 7. Otherwise, continue with Step 9.
+
+7.The MME sends a Location Update Request message to the MSC/VLR.
+8.The MSC/VLR responses by sending a Location Update Accept message to the MME.
+9.The MME then sends a TAU Accept message encapsulated in an S1-AP Downlink NAS Transport message to the UE. If the time elapsed since last GUTI reallocation is greater than the configured value MMEGutiReallocationTimeLimit, or if the UE moves to a different PLMN served by the same MME in case of Multiple PLMN Support, GUTI reallocation is performed.
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the Attach Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on how to configure IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+10.If the GUTI has been reallocated, the UE sends a TAU Complete message to the MME.
+11.If the TAU Request message in Step 6 was a Combined TAU Request, the MME sends a TMSI Reallocation Complete message to the MSC/VLR.
+10.1.1.2   Failure in the X2-Based Handover without SGW Relocation
+The following are examples of when Path Switch Request Failure messages are sent to the target eNodeB:
+
+■No default bearers were set up in the target eNodeB
+■All Modify Bearer Request messages to the SGW are unsuccessful, that is, no default bearers can be modified in the SGW
+■Failure in the X2-based handover procedure owing to roaming restrictions
+The MME sends the Path Switch Request Failure message to the target eNodeB if the MME cannot determine the specific UE.
+
+If the X2-based handover procedure fails owing to roaming restrictions, the MME sends a Path Switch Request Failure message to the target eNodeB with the default cause code Handover failure in Target EPC/eNodeB or Target System. The MME sends a Detach Request message with an operator-configured cause code between #11 - #15 to the UE.
+
+10.1.2   Intra-MME X2-Based Handover with SGW Relocation
+An intra-MME X2-based handover with SGW relocation procedure is performed when the UE moves between cells within the same MME service area, served by a new SGW.
+
+A prerequisite for this procedure is that there must be IP connectivity between the target eNodeB and the source SGW. If there is no IP connectivity, an S1-based handover procedure is performed.
+
+10.1.2.1   Traffic Case
+The Intra-MME X2-based handover with SGW relocation procedure is shown in Figure 24 and is described below the figure.
+
+ 
+Figure 24   Intra-MME X2-Based Handover with SGW Relocation Procedure
+
+The following steps describe the intra-MME X2-based handover with SGW relocation procedure:
+
+1.The target eNodeB sends a Path Switch Request message to inform the MME that the UE has changed eNodeBs. This message contains a list of EPS bearers, eNodeB IP addresses, and TEIDs for user-plane traffic. The MME performs the following: 
+■Validate the information
+■Determine that the SGW needs to be relocated
+■Select a new SGW
+■Release the connection to the source eNodeB implicitly
+If the TA has changed, the MME checks if access restrictions or roaming restrictions apply. The MME also checks if CSG restrictions apply. If the UE is restricted, the X2-Based Handover fails, see Section 10.1.2.2. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information about CSG restrictions, see Section 15.6.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service.
+
+2.The MME sends one Create Session Request message to the target SGW for each of the remaining PDN connections. The Create Session Request message contains the following: 
+■The PGW IP addresses and TEIDs for uplink traffic
+■The eNodeB IP addresses and TEIDs for downlink traffic
+3.The target SGW assigns one IP address and TEID for each bearer and sends a Modify Bearer Request message to the PGW for each PDN connection. The Modify Bearer Request message contains the following information for downlink traffic for the accepted EPS Bearers: 
+■The SGW IP addresses and TEIDs
+4.The PGW updates its context field and sends a Modify Bearer Response message to the target SGW.
+5.The target SGW sends a Create Session Response message to the MME, containing the following information for uplink user-plane traffic: 
+■SGW IP addresses and TEIDs
+The MME releases the failed dedicated bearers by triggering the bearer release procedure in the SGW. Failed PDN connections are removed through the SGW. The MME starts a timer for the release of bearers.
+
+6.The MME confirms the handover by sending a Path Switch Request Acknowledge message to the target eNodeB, containing the following information for uplink traffic: 
+■SGW IP addresses and TEIDs
+If the UE-AMBR is changed, the MME provides the updated value to the target eNodeB in this message. This message also contains the EPS bearers that failed to establish.
+
+7.The successful handover triggers the target eNodeB to send a Release Resources message to the source eNodeB. Unsuccessful EPS bearers are released.
+8.The MME sends the Delete Session Request message to the source SGW to release bearers locally when the timer, previously set by the MME, has expired.
+9.The source SGW acknowledges this by sending the Delete Session Response message to the MME. The source SGW deletes the bearers without notifying the PGW.
+10.The UE sends a TAU Request message to the MME. The UE can also send a Combined TAU Request message to the MME. If a Combined TAU Request message is sent and the PreventCombinedRegistration parameter is set to false, continue with Step 11. Otherwise, continue with Step 13.
+11.The MME sends a Location Update Request message to the MSC/VLR.
+12.The MSC/VLR responds with a Location Update Accept message.
+13.The MME answers with a TAU Accept message encapsulated in an S1-AP Downlink NAS Transport message to the UE. If the time elapsed since last GUTI reallocation is greater than the configured value MMEGutiReallocationTimeLimit, or if the UE moves to a different PLMN served by the same MME in case of Multiple PLMN Support, a GUTI reallocation is performed.
+The MME informs the UE about supported features, such as IMS Voice Service or IMS Emergency Service by sending the EPS network feature support IE in the TAU Accept message. Supported features are based on the configuration of the MME. The EPS network feature support IE includes IMS VoPS bit. See the Note for information about the IMS VoPS bit.
+
+For more information on the IMS Voice Service and the IMS Emergency Service feature, see Features and Functions Management. For more information on configuring IMS Voice Service and IMS Emergency Service, see Configuring MMTel Service and IMSI Number Series (CLI).
+
+14.If the GUTI has been reallocated, the UE sends a TAU Complete message to the MME.
+15.If the TAU Request message in Step 10 was a Combined TAU Request message, the MME sends a TMSI Reallocation Complete message to the MSC/VLR. This only occurs in the case of a new TMSI.
+10.1.2.2   Failure in the X2-Based Handover with SGW Relocation
+The following are examples of when Path Switch Request Failure messages are sent to the target eNodeB:
+
+■No default bearers were set up in the target eNodeB
+■All Create Session Request messages to the target SGW are unsuccessful, that is, no default bearers can be set up in the target SGW
+■Failure in the X2-based handover procedure owing to roaming restrictions
+The MME sends the Path Switch Request Failure message to the target eNodeB if the MME cannot determine the specific UE.
+
+If the X2-based handover procedure fails owing to roaming restrictions, the MME sends a Path Switch Request Failure message to the target eNodeB with the default cause code Handover failure in Target EPC/eNodeB or Target System. The MME sends a Detach Request message with an operator-configured cause code between #11 - #15 to the UE.
+
+10.2   Mobility with S1-Based Handover
+Although handover over the X2 interface is preferred, this is not possible if no X2 interface exists between the eNodeBs. In this case, the RAN initiates a handover preparation over the S1 interface to avoid service disruption. The S1 handover can involve a relocation of the MME or the SGW, or both, along with eNodeB relocation.
+
+The handover is initiated by the source eNodeB when the eNodeB detects UE movement between Tracking Areas.
+
+For more information about CSG restrictions, see Section 15.6.
+
+Note:  Handover to a CSG cell in another PLMN always fails.
+
+
+10.2.1   Inter-MME S1-Based Handover without SGW Relocation
+An inter-MME S1-based handover without SGW relocation procedure is performed when the UE moves between cells, and the new cell is within the same SGW service area, but is served by a new MME.
+
+10.2.1.1   Traffic Case
+The inter-MME S1-based handover without SGW relocation procedure is shown in Figure 25 and is described below the figure.
+
+ 
+Figure 25   Inter-MME S1-Based Handover without SGW Relocation Procedure
+
+The following steps describe the inter-MME S1-based handover without SGW relocation procedure:
+
+1.The source eNodeB sends a Handover Required message to the source MME. The source MME checks if access restrictions or roaming restrictions apply. The source MME also checks if CSG restrictions apply. If the UE is restricted, the S1-based handover procedure fails, see Section 10.2.1.2. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, Section 15.1. For more information about CSG restrictions, see Section 15.6.
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile. If the target TA is restricted, non-emergency PDN connections are removed. For more information on the removal of non-emergency PDN connections, see Step 12 in Section 10.2.4.1. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service.
+
+2.The source MME sends a Forward Relocation Request message to the selected target MME. The source MME selects the target MME either through static selection or a DNS query, depending on the configuration. For detailed information about the static selection, see Section 12.
+The UE Radio Capability for Paging information may be included in the Forward Relocation Request message and transferred from the source MME to the target MME. For more information, see Massive IoT.
+
+The target MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the S1-based handover procedure fails, see Section 10.2.1.2. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, Section 15.1. For more information on how to configure an MME to send an emergency PDN connection between PLMNs, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The target MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+3.The target MME sends the Handover Request message to the target eNodeB. The Handover Request message creates the UE context in the target eNodeB, including information about the bearers and the security context. 
+If the optional feature MME Support of HeNB is enabled and the MME fails to find the target eNodeB, the MME uses the TAI to search for the HeNB GW that serves this TAI. If the TAI is served by both macro eNodeB(s) and a HeNB GW, the MME selects the HeNB GW that serves the same TAI from the configured HeNB GW table. In this case, the MME sends the Handover Request message to the HeNB GW instead of the eNodeB.
+
+If multiple HeNB GWs match the target TAI, and the Global eNodeB ID in the target ID IE has 28 bits, the MME uses the 20 most significant bits as the Global eNodeB ID to look for a directly connected HeNB GW, whose Global eNodeB ID is 20bits, same as the 20 most significant bits of the Global eNodeB ID in the target ID IE.
+
+■If the MME finds a HeNB GW, the MME treats that HeNB GW as the target eNodeB.
+■If the MME cannot find a HeNB GW, the MME randomly selects a HeNB from those HeNB GWs matching the target TAI as the target eNodeB.
+If the HeNB is connected to the MME directly, the MME searches for the HeNB in the same way as it searches for a traditional macro eNodeB.
+
+4.The target eNodeB acknowledges this request by sending a Handover Request Acknowledge message to the target MME. If the HeNB is deployed with an HeNB GW, the HeNB responds to the target MME through the HeNB GW with a Handover Request Acknowledge message after establishing the bearers. If the HeNB is connected to the target MME directly, it responds to the target MME without the HeNB GW.
+The list of bearers to set up must contain at least one default bearer. If no default EPS bearers are accepted by the target eNodeB, the inter-MME S1-based handover without SGW relocation procedure is rejected, see Section 10.2.1.2.
+
+5.The target MME sends a Forward Relocation Response message to the source MME, in response to Step 2.
+6.The source MME sends a Handover Command message to the source eNodeB.
+7.The eNodeB forwards the Handover Command message to the UE. This message can contain a list of bearers to release.
+8.The source eNodeB can send an eNodeB Status Transfer message to the source MME. In case this message is not sent, continue with Step 12.
+9.The source MME forwards the information in the eNodeB Status Transfer message to the target MME in a Forward Access Context Notification message.
+10.The target MME responds by sending a Forward Access Context Acknowledge message to the source MME.
+11.The target MME forwards the eNodeB Status Transfer message to the target eNodeB. If the HeNB is deployed with an HeNB GW, the target MME sends the eNodeB Status Transfer message to the HeNB through the HeNB GW. If the HeNB is connected to the target MME directly, the target MME sends the message to the HeNB without HeNB GW.
+12.When the UE and the target cell have synchronized successfully, the UE sends a Handover Confirm message to the target eNodeB, in response to Step 7.
+13.The target eNodeB sends a Handover Notify message to the target MME. The Handover Notify message informs the target MME that the UE has arrived to the target cell and that the S1-based handover was successfully completed. If the HeNB is deployed with an HeNB GW, the target MME receives the Handover Nofity message from the HeNB GW which serves the HeNB. If the HeNB is connected to the target MME directly, the target MME receives the message from the HeNB without HeNB GW.
+14.The target MME sends a Forward Relocation Complete Notification message to the source MME.
+15.The source MME responds by sending a Forward Relocation Complete Acknowledge message to the target MME.
+16.The target MME performs the S-NAPTR query to select an SGW based on the current TAI of the UE and the old PGW. The target MME determines if the SGW relocation happens by comparing the selected SGW name with the SGW node name received in the Forward Relocation Request message. If the SGW node name is not included in the Forward Relocation Request message, the target SGSN determines if the SGW relocation happens by comparing the IP address of the selected SGW with the SGW IP address received in the Forward Relocation Request message. In this case, the SGW relocation does not happen, the target MME sends one Modify Bearer Request message for each PDN connection to the SGW.
+17.The SGW responds by sending a Modify Bearer Response message to the target MME.
+18.A Tracking Area Update Procedure is performed.
+19.The source MME sends a UE Context Release Command message to the source eNodeB.
+20.The source eNodeB releases its resources related to the UE and responds with the UE Context Release Complete message.
+10.2.1.2   Failure in the Inter-MME S1-Based Handover without SGW Relocation
+The target eNodeB sends a Handover Failure message when it fails to allocate any resources for any of the requested non-GBR bearers. That is, resource allocation fails for all the requested non-GBR bearers. The MME sends the Handover Preparation Failure message to the source MME with an applicable cause code.
+
+The following are examples of when Handover Preparation Failure messages are sent:
+
+■No UE context is established in the target MME and target eNodeB, and no resources are allocated.
+■No default bearers can be set up in the target eNodeB.
+■Failure in the S1-based handover procedure owing to roaming restrictions.
+For example, the MME sends a Handover Preparation Failure message with the cause code Handover Failure in Target EPC/eNodeB or Target System to the source eNodeB.
+
+10.2.2   Inter-MME S1-Based Handover with SGW Relocation
+An inter-MME S1-based handover with SGW relocation procedure is performed when the UE moves between cells, and the new cell is served by a new MME and SGW.
+
+10.2.2.1   Traffic Case
+The inter-MME S1-based handover with SGW relocation procedure is shown in Figure 26 and is described below the figure.
+
+ 
+Figure 26   Inter-MME S1-Based Handover with SGW Relocation Procedure
+
+The following steps describe the inter-MME S1-based handover with SGW relocation procedure:
+
+1.The source eNodeB sends a Handover Required message to the source MME. The source MME checks if access restrictions or roaming restrictions apply. The source MME also checks if CSG restrictions apply. If the UE is restricted, the S1-based handover procedure fails, see Section 10.2.2.2. In the case of IMS Emergency Service, access, CSG, and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, Section 15.1. For more information about CSG restrictions, see Section 15.6.
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile. If the target TA is restricted, non-emergency PDN connections are removed. For more information on the removal of non-emergency PDN connections, see Step 12 in Section 10.2.4.1. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service.
+
+2.The source MME sends a Forward Relocation Request message to the selected target MME. The source MME selects the target MME either through static selection or a DNS query, depending on the configuration. For detailed information about the static selection, see Section 12.
+The UE Radio Capability for Paging information may be included in the Forward Relocation Request message and transferred from the source MME to the target MME. For more information, see Massive IoT.
+
+3.The target MME performs the S-NAPTR query to select an SGW based on the current TAI of the UE and the old PGW. The target MME determines if the SGW relocation happens by comparing the selected SGW name with the SGW node name received in the Forward Relocation Request message. If the SGW node name is not included in the Forward Relocation Request message, the target SGSN determines if the SGW relocation happens by comparing the IP address of the selected SGW with the SGW IP address received in the Forward Relocation Request message. In this case, the SGW relocation happens, and the target MME sends a Create Session Request message to the target SGW.
+The target MME checks if access restrictions or roaming restrictions apply. If the UE is restricted, the S1-based Handover procedure fails, see Section 10.2.2.2. In the case of IMS Emergency Service, access and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, see Section 15.1. For more information on how to configure an MME to send an emergency PDN connection between PLMNs, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+The target MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If the target TA is restricted, non-emergency PDN connections are removed. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+If the UE has set up any dedicated bearers, the target MME checks if the licensed feature Network-initiated Dedicated Bearers is activated. If the feature Network-initiated Dedicated Bearers is activated, dedicated bearers are allowed to continue. If the feature is not activated, the existing dedicated bearers are marked to be deleted. For more information on the feature Network-initiated Dedicated Bearers, see Features and Functions Management
+
+4.The target SGW sends the Create Session Response message to the target MME.
+5.The target MME sends the Handover Request message to the target eNodeB. The Handover Request message creates the UE context in the target eNodeB, including information about the bearers and the security context.
+If the optional feature MME Support of HeNB is enabled and the MME fails to find the target eNodeB, the MME uses the TAI to search for the Home eNodeB Gateway (HeNB GW) that serves that TAI. If the TAI is served by both macro eNodeB(s) and a HeNB GW, the MME selects the HeNB GW that serves the same TAI from the configured HeNB GW table. In this case, the MME sends the Handover Request message to the HeNB GW instead of the eNodeB.
+
+If multiple HeNB GWs match the target TAI, and the Global eNodeB ID in the target ID IE has 28 bits, the MME uses the 20 most significant bits as the Global eNodeB ID to look for a directly connected HeNB GW, whose Global eNodeB ID is 20bits, same as the 20 most significant bits of the Global eNodeB ID in the target ID IE.
+
+■If the MME finds a HeNB GW, the MME treats that HeNB GW as the target eNodeB.
+■If the MME cannot find a HeNB GW, the MME randomly selects a HeNB from those HeNB GWs matching the target TAI as the target eNodeB.
+If the HeNB is connected to the MME directly, the MME searches for the HeNB in the same way as it searches for a traditional macro eNodeB.
+
+6.The target eNodeB acknowledges this request by sending a Handover Request Acknowledge message to the target MME. If the HeNB is deployed with an HeNB GW, the HeNB responds to the target MME through the HeNB GW with a Handover Request Acknowledge message after establishing the bearers. If the HeNB is connected to the target MME directly, it responds to the target MME without the HeNB GW.
+7.The target MME sends the Forward Relocation Response message to the source MME with the cause Request Accepted. Only the successful bearers are listed for each PDN connection.
+8.The source MME sends the Handover Command message to the source eNodeB.
+9.The source eNodeB forwards the Handover Command message to the UE.
+10.The source eNodeB can also send the eNodeB Status Transfer message to the source MME. In case this message is not sent, continue with Step 13.
+11.The source MME forwards the eNodeB Status Transfer message in a Forward Access Context Notification message to the target MME.
+12.The target MME responds with a Forward Access Context Acknowledge message.
+13.The target MME sends an MME Status Transfer message to the target eNodeB. If the HeNB is deployed with an HeNB GW, the target MME sends the MME Status Transfer message to the HeNB through the HeNB GW. If the HeNB is connected to the target MME directly, the target MME sends the message to the HeNB without HeNB GW.
+14.The UE detaches from the old cell and synchronizes with the target cell. The UE sends a Handover Confirm message to the target eNodeB. This can happen anytime after Step 9.
+15.The target eNodeB sends a Handover Notify message to the target MME when the UE is identified in the target cell and the S1-based handover procedure has been successfully completed. If the HeNB is deployed with an HeNB GW, the target MME receives the Handover Nofity message from the HeNB GW which serves the HeNB. If the HeNB is connected to the target MME directly, the target MME receives the message from the HeNB without HeNB GW.
+16.The target MME sends a Forward Relocation Complete Notification message to the source MME and deactivates the dedicated bearers which were previously marked for deletion.
+17.The source MME sends a Forward Relocation Complete Acknowledge message to the target MME.
+18.The target MME sends one Modify Bearer Request message for each PDN connection to the target SGW.
+19.The target SGW forwards the Modify Bearer Request message to the PGW.
+20.The PGW responds with a Modify Bearer Response message to the target SGW.
+21.The target SGW forwards the Modify Bearer Response message to the target MME.
+22.A Tracking Area Update Procedure is performed.
+23.If an indication of SGW relocation was sent to the source MME in the Forward Relocation Response message, the source MME sends the Delete Session Request message to the source SGW.
+24.The source SGW responds to the source MME with a Delete Session Response message. The source SGW deletes the bearer resources locally.
+25.The source MME releases the EPS bearer resources when the handover procedure is completed by sending a UE Context Release Command message to the source eNodeB.
+26.The source eNodeB releases the UE contexts and responds to the source MME with the UE Context Release Complete message.
+10.2.2.2   Failure in the Inter-MME S1-Based Handover with SGW Relocation
+The target eNodeB sends a Handover Failure message when it fails to allocate any resources for any of the requested non-GBR bearers. That is, resource allocation fails for all the requested non-GBR bearers. The MME clears the reserved resources in the SGW for this UE on receiving the Handover Failure message from the target eNodeB. The MME sends the Handover Preparation Failure message to the source MME with an applicable cause code.
+
+The following are examples of when Handover Preparation Failure messages are sent:
+
+■No target SGW is selected or found.
+■No UE context is established in the target SGW or target eNodeB, and no resources are allocated.
+■No default bearers can be established in the target SGW.
+■Failure in the S1-based handover procedure owing to roaming restrictions.
+10.2.3   Intra-MME S1-Based Handover without SGW Relocation
+An intra-MME S1-based handover without SGW relocation procedure is performed when the UE moves between cells within the same MME and SGW serving areas.
+
+10.2.3.1   Traffic Case
+The intra-MME S1-based handover without SGW relocation procedure is shown in Figure 27 and is described below the figure.
+
+ 
+Figure 27   Intra-MME S1-Based Handover without SGW Relocation Procedure
+
+The following steps describe the intra-MME S1-based handover without SGW relocation procedure:
+
+1.The source eNodeB sends a Handover Required message to the MME.
+The MME checks if access or roaming restrictions apply. The source MME also checks if CSG restrictions apply. If the UE is restricted, the S1-based handover procedure fails, see Section 10.2.4.2. In the case of IMS Emergency Service, access, CSG, and roaming restrictions are ignored. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, Section 15.1. For more information about CSG restrictions, see Section 15.6.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If restrictions apply, non-emergency PDN connections are removed. For more information on the removal of non-emergency PDN connections, see Step 10. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service and IMS Emergency Service (CLI).
+
+2.The MME sends a Handover Request message to the target eNodeB, which creates the UE context in the target eNodeB.
+If the licensed feature MME Support of HeNB is enabled and the MME fails to find the target eNodeB, the MME uses the TAI to search for the HeNB GW that serves that TAI. If the TAI is served by both macro eNodeB(s) and a HeNB GW, the MME selects the HeNB GW that serves the same TAI from the configured HeNB GW table. In this case, the MME sends the Handover Request message to the HeNB GW instead of the eNodeB.
+
+If multiple HeNB GWs match the target TAI, and the Global eNodeB ID in the target ID IE has 28 bits, the MME uses the 20 most significant bits as the Global eNodeB ID to look for a directly connected HeNB GW, whose Global eNodeB ID is 20bits, same as the 20 most significant bits of the Global eNodeB ID in the target ID IE.
+
+■If the MME finds a HeNB GW, the MME treats that HeNB GW as the target eNodeB.
+■If the MME cannot find a HeNB GW, the MME randomly selects a HeNB from those HeNB GWs matching the target TAI as the target eNodeB.
+If the HeNB is connected to the MME directly, the MME searches for the HeNB in the same way as it searches for a traditional macro eNodeB.
+
+3.The target eNodeB responds with a Handover Request Acknowledge message to the MME. If the HeNB is deployed with an HeNB GW, the HeNB responds to the MME through the HeNB GW with a Handover Request Acknowledge message after establishing the bearers. If the HeNB is connected to the MME directly, it responds to the MME without HeNB GW.
+4.The MME sends a Handover Command message to the source eNodeB.
+5.The eNodeB forwards the Handover Command message to the UE. The Handover Command message can contain a list of bearers to release.
+6.The source eNodeB may send an eNodeB Status Transfer message to the MME. In case this message is not sent, continue with Step 8.
+7.The MME forwards the eNodeB Status Transfer message to the target eNodeB. If the HeNB is deployed with an HeNB GW, the MME sends the eNodeB Status Transfer message to the HeNB through the HeNB GW. If the HeNB is connected to the MME directly, the MME sends the message to the HeNB without HeNB GW.
+8.When the UE and the target cell have synchronized successfully, the UE sends a Handover Confirm message to the target eNodeB.
+9.The target eNodeB sends a Handover Notify message to the MME. The Handover Notify message informs the MME that the UE has arrived to the target cell and that the S1 handover was successfully completed. If the HeNB is deployed with an HeNB GW, the MME receives the Handover Nofity message from the HeNB GW which serves the HeNB. If the HeNB is connected to the MME directly, the MME receives the message from the HeNB without HeNB GW.
+10.The MME sends one Modify Bearer Request message for each PDN connection to the SGW.
+11.The SGW forwards the Modify Bearer Request message to the PGW.
+12.The PGW responds by sending a Modify Bearer Response message to the SGW.
+13.The SGW forwards the Modify Bearer Response message to the MME.
+14.A Tracking Area Update Procedure is performed.
+15.The MME sends a UE Context Release Command message to the source eNodeB.
+16.The source eNodeB releases its resources related to the UE and responds with a UE Context Release Complete message.
+10.2.3.2   Failure in the Intra-MME S1-Based Handover without SGW Relocation
+The target eNodeB sends a Handover Failure message when it fails to allocate any resources for any of the requested non-GBR bearers. That is, resource allocation fails for all the requested non-GBR bearers. The MME sends the Handover Preparation Failure message to the source MME with an applicable cause code.
+
+The following are examples of when Handover Preparation Failure messages are sent:
+
+■No UE context is established in the target eNodeB, and no resources are allocated.
+■No default bearers can be set up in the target eNodeB.
+■Failure in the S1-based handover procedure owing to roaming restrictions.
+For example, the MME sends a Handover Preparation Failure message with cause code Handover Failure in Target EPC/eNodeB or Target System to the source eNodeB.
+
+10.2.4   Intra-MME S1-Based Handover with SGW Relocation
+An intra-MME S1-based handover with SGW relocation procedure is performed when the UE moves between cells, and the new cell is within the same MME service area, but is served by a new SGW.
+
+10.2.4.1   Traffic Case
+The intra-MME S1-based handover with SGW relocation procedure is shown in Figure 28 and is described below the figure.
+
+ 
+Figure 28   Intra-MME S1-Based Handover with SGW Relocation Procedure
+
+The following steps describe the intra-MME S1-based handover with SGW relocation procedure:
+
+1.The source eNodeB sends a Handover Required message to the MME.
+The MME checks if access or roaming restrictions apply. The source MME also checks if CSG restrictions apply. If the UE is restricted, the S1-based handover procedure fails, see Section 10.2.4.2. For more information about Access Restrictions, see Section 15.2. For more information about Roaming Restrictions, Section 15.1. For more information about CSG restrictions, see Section 15.6.
+
+The MME keeps an emergency PDN connection based on the configuration of the emergency profile in the target PLMN. If restrictions apply, non-emergency PDN connections are removed. For more information on the removal of non-emergency PDN connections, see Step 12. For more information on how to configure IMS Emergency Service, see Configuring MMTel Service.
+
+2.The MME selects a target SGW based on the TAI and the old PGW. The MME sends a Create Session Request message to the target SGW.
+3.The target SGW responds with a Create Session Response message to the MME.
+4.The MME sends a Handover Request message to the target eNodeB, which creates the UE context in the target eNodeB.
+If the licensed feature MME Support of HeNB is enabled and the MME fails to find the target eNodeB, the MME uses the TAI to search for the HeNB GW that serves that TAI. If the TAI is served by both macro eNodeB(s) and a HeNB GW, the MME selects the HeNB GW that serves the same TAI from the configured HeNB GW table. In this case, the MME sends the Handover Request message to the HeNB GW instead of the eNodeB.
+
+If multiple HeNB GWs match the target TAI, and the Global eNodeB ID in the target ID IE has 28 bits, the MME uses the 20 most significant bits as the Global eNodeB ID to look for a directly connected HeNB GW, whose Global eNodeB ID is 20bits, same as the 20 most significant bits of the Global eNodeB ID in the target ID IE.
+
+■If the MME finds a HeNB GW, the MME treats that HeNB GW as the target eNodeB.
+■If the MME cannot find a HeNB GW, the MME randomly selects a HeNB from those HeNB GWs matching the target TAI as the target eNodeB.
+If the HeNB is connected to the MME directly, the MME searches for the HeNB in the same way as it searches for a traditional macro eNodeB.
+
+5.The target eNodeB responds with a Handover Request Acknowledge message to the MME. If the HeNB is deployed with an HeNB GW, the HeNB responds to the MME through the HeNB GW with a Handover Request Acknowledge message after establishing the bearers. If the HeNB is connected to the MME directly, it responds to the MME without HeNB GW.
+6.The MME sends a Handover Command message to the source eNodeB.
+7.The eNodeB forwards the Handover Command message to the UE. The Handover Command message can contain a list of bearers to release.
+8.The source eNodeB can send an eNodeB Status Transfer message to the MME. In case this message is not sent, continue with Step 10.
+9.The MME forwards the eNodeB Status Transfer message to the target eNodeB. If the HeNB is deployed with an HeNB GW, the MME sends the MME Status Transfer message to the HeNB through the HeNB GW. If the HeNB is connected to the MME directly, the MME sends the message to the HeNB without HeNB GW.
+10.When the UE and the target cell have synchronized successfully, the UE sends a Handover Confirm message to the target eNodeB.
+11.The target eNodeB sends a Handover Notify message to the MME. The Handover Notify message informs the MME that the UE has arrived to the target cell and that the S1 handover was successfully completed. If the HeNB is deployed with an HeNB GW, the MME receives the Handover Nofity message from the HeNB GW which serves the HeNB. If the HeNB is connected to the MME directly, the MME receives the message from the HeNB without HeNB GW.
+12.The MME sends one Modify Bearer Request message for each PDN connection to the target SGW.
+13.The target SGW forwards the Modify Bearer Request message to the PGW.
+14.The PGW responds by sending a Modify Bearer Response message to the target SGW.
+15.The target SGW forwards the Modify Bearer Response message to the MME.
+16.A Tracking Area Update Procedure is performed.
+17.The MME sends the Delete Session Request messages to the source SGW to release the EPS bearer resources. It is indicated in the messages that the source SGW should not initiate a delete procedure toward the PGW.
+18.The MME sends a UE Context Release Command message to the source eNodeB.
+19.The source eNodeB releases its resources related to the UE and responds with the UE Context Release Complete message.
+20.The source SGW responds to Step 17 with the Delete Session Response message.
+10.2.4.2   Failure in the Intra-MME S1-Based Handover with SGW Relocation
+The target eNodeB sends a Handover Failure message when it fails to allocate any resources for any of the requested non-GBR bearers. That is, resource allocation fails for all the requested non-GBR bearers. The MME clears the reserved resources in the SGW for this UE on receiving the Handover Failure message from the target eNodeB. The MME sends the Handover Preparation Failure message to the source MME with an applicable cause code.
+
+The following are examples of when Handover Preparation Failure messages are sent:
+
+■No target SGW is selected or found
+■No UE context is established in the target SGW or target eNodeB and no resources are allocated
+■No default bearers can be established in the target SGW
+■Failure in the S1-based handover procedure owing to roaming restrictions.
+If the S1-based handover procedure fails owing to roaming restrictions, the MME sends a Handover Preparation Failure message to the source eNodeB with the cause code Handover failure in Target EPC/eNodeB or Target System.
+
+11   Cell Change Reporting
+When the licensed-controlled Cell Change Reporting feature is enabled, the MME subscribes to cell change events for the UE from the eNodeB. This is applicable for all UE devices in ECM-CONNECTED state. The location information is then forwarded to the SGW.
+
+Note:  Enabling the feature increases signaling on the S1, S11, and S5/S8 interfaces. The feature may also increase the overall load in the SGSN-MME in systems with many simultaneously attached users.
+
+
+11.1   Traffic Case
+The Cell Change Reporting procedure is shown in Figure 29 and is described below the figure.
+
+ 
+Figure 29   Cell Change Reporting Procedure
+
+The following steps describe the Cell Change Reporting procedure:
+
+1.When the UE changes its state to ECM-CONNECTED, the MME sends a Location Reporting Control message to the eNodeB. In this message, the MME requests the eNodeB to send a location report whenever the UE changes cells.
+2.The eNodeB sends a Location Report message to inform the MME about the location of the UE, including the TAI and E-UTRAN Cell Global Identifier (ECGI), whenever the UE changes cells.
+3.The MME sends one Change Notification Request message, including the TAI and ECGI, to the SGW for each PDN connection.
+4.The SGW forwards the Change Notification Request message to the PGW. If dynamic policy and charging control are deployed, the PGW forwards the ECGI changes to the Policy and Charging Rules Function (PCRF), if necessary.
+5.The PGW sends the Change Notification Response message to the SGW.
+6.The SGW forwards the Change Notification Response message to the MME.
+12   Static SGSN or MME Selection
+Note:  The static SGSN or MME Selection is a customer specified solution.
+
+
+The static SGSN or MME selection function enables the MME to select the old or target SGSN or MME through the preconfigured selection tables. The static selection occurs during the Attach, TAU, Inter-MME S1 Handover, Inter-Radio Access Technology (IRAT) PS Handover, and RAN Information Management (RIM) procedures. Both combined SGSN-MMEs and pure MMEs support the static selection. For detailed information about the preconfigured SGSN and MME selection tables, refer to Configuring Static SGSN or MME Selection in MME.
+
+The static selection function is enabled by setting the node function static_mme_sgsn_selection to ON. If the node function is set to OFF, only the DNS query is used to select the nodes.
+
+Note:  For a TAU procedure from a GSM or WCDMA SGSN, if the old RAI is in the own pool of the SGSN, the SGSN selection table created by the CLI command create_nri is used to find the old SGSN instead of a DNS query. The node function static_mme_sgsn_selection is only used when the MME searches for a cooperating SGSN which is outside the own pool or in a remote pool. That is, the SGSN selection in own pool is independent of the node function static_mme_sgsn_selection.
+
+
+If the static selection is successful, the MME gets the IP address of the old or target node. If the static selection fails, the DNS query is used only if the node function static_mme_sgsn_selection_snaptr_dns_fallback is set to ON. If the DNS query is successful, the MME gets both the hostname and IP address of the old or target node. The S-NAPTR procedure is used to query the DNS to select the MME. The S-NAPTR procedure or type A/AAAA is used to query the DNS to select the SGSN.
+
+During the Attach and TAU procedures, the MME resolves the old side using the old GUTI in the Attach request and TAU request messages. If the old GUTI is native, the old side is an MME. If the old GUTI is mapped from P-TMSI, the old side is an SGSN.
+
+When the TAU Request with the old GUTI type IE is received, the old GUTI is either native or mapped, which depends on what it is indicated in the old GUTI type.
+
+When the TAU Request without the old GUTI type IE is received, the old GUTI is native under the following cases:
+
+■The TAU procedure is integrity protected and the Additional GUTI IE is not present.
+■The TAU procedure is integrity protected and the Additional GUTI IE matches the old GUTI.
+Otherwise, the old GUTI is considered as mapped.
+
+12.1   Static SGSN Selection
+This section describes the static SGSN selection in both combined SGSN-MMEs and pure MMEs.
+
+During the Attach or TAU procedure, the new MME queries different selection tables to select the old SGSN. The new MME extracts the Routing Area Identity (RAI) and Network Resource Identifier (NRI) from the old GUTI. One RAI is associated with only one SGSN pool. If the RA is served by SGSN(s) in the same pool as the new MME, the MME uses the RAI and NRI as the input to query the "SGSN Selection Table for SGSNs in Own Pool". If the combined SGSN-MME is the only SGSN in the pool, the combined SGSN is selected as the old SGSN. Otherwise, the SGSN matched by RAI and NRI in the pool is selected as the old SGSN. For SGSN(s) outside a pool or in a remote pool, the new MME uses the RAI and NRI as inputs to query the "SGSN Selection Table for Cooperating SGSN". If there is a matched SGSN, it is selected as the old SGSN. Otherwise, any SGSN that serves the cooperating RA is selected.
+
+During the IRAT Handover or RIM procedures, the source MME acquires the information of the target RAI from the Target RNC Identifier IE or RIM Routing Address IE. If the source MME is a combined SGSN-MME and the target RA is served by the combined SGSN-MME, the MME selects its combined SGSN as the target SGSN. The combined MME gets the local host address of the target SGSN. If the target RA is served by SGSN(s) outside a pool or by a remote SGSN pool, the MME queries the "SGSN Selection Table for Cooperating SGSN". The MME uses the RAI as input to query the selection table to get a list of SGSNs that serve the RA. If such a list is available, the MME sorts the list by capacity using the Weighted Round Robin (WRR) algorithm. The MME gets the IP address of the SGSN at the top of the list.
+
+If the old or target SGSN has both an S3IPAddress and a GnIPAddress or GnIPv4v6Address, the new or source MME prefers to select the S3IPAddress. In that case, the MME uses the GTPv2 to interwork with the old SGSN. If the GnIPAddress or GnIPv4v6Address is selected, the MME uses the GTPv1 to interwork with the old SGSN.
+
+12.2   Static MME Selection
+During the Attach or TAU procedures, the new MME queries the MME selection table to select the old MME. The new MME uses the Global Unique MME Identity (GUMMEI) as input. The GUMMEI, extracted from the old GUTI, consists of a PLMN ID, an MME Group ID (MMEGI), and an MME Code (MMEC). If the query is successful, the new MME gets the IP address of the old MME.
+
+During the Handover procedure, the source MME queries the "MME Selection Table" to select the target MME. The source MME uses the TAI as the input to get a candidate list of the target MMEs which serve the target TA. If such a list is available, the source MME sorts the candidate list by capacity using the Weighted Round Robin (WRR) algorithm. The MME at the top of the sorted list is selected as the target MME.
+
+13   Mobility Event Log
+All Attach Reject messages that occur owing to network failure are stored in the Mobility Event Log. The Attach Reject messages are stored for both GPRS and EPS subscribers.
+
+For more information on the Mobility Event Log file, see Mobility Event Log.
+
+14   Multiple PLMN Support
+The SGSN-MME supports multiple PLMNs, that is, one SGSN-MME can serve several PLMNs. This makes it possible to share an SGSN-MME between networks in different countries or regions. It is also possible that several operators share an SGSN-MME to support their individual Radio Networks (RAN).
+
+The Multiple PLMN Support feature allows up to 10 PLMNs to share SGSN-MME. Each PLMN is distinguished by a unique PLMN identity, consisting of a Mobile Country Code (MCC) and a Mobile Network Code (MNC).
+
+Multiple PLMN Support can be combined with the optional feature, Roaming Restrictions, to enable specific roaming restrictions for different roaming subscribers. For more information on the Roaming Restrictions feature, see Section 15.1.
+
+15   Restrictions
+Restrictions enable the MME to restrict the access of certain subscribers.
+
+15.1   Roaming Restrictions
+The license-controlled feature Roaming Restrictions apply to the Attach, TAU, and Handover procedures. Roaming Restrictions enable the MME to restrict access for roaming subscribers in a TA within a GA based on IMSI number series, the UE device type (IMEI-TAC or IMEI-TAC SV), or both IMSI number series and the UE device type.
+
+The MME primarily checks the configured Roaming Restrictions based on IMSI number series. If the Roaming Restrictions based on IMSI number series do not apply, the MME then checks the Roaming Restrictions based on IMEI-TAC or IMEI-TAC SV.
+
+When a UE subject to Roaming Restriction enters in a restricted GA or TA, a configured cause code is sent to the UE in the reject message. The cause code indicates to the UE that the service is denied or the area is not allowed, which depends on the IMSI number series, the IMEI-TAC, or the IMEI-TAC SV the UE belongs to.
+
+For Roaming Restrictions based on IMEI-TAC or IMEI-TAC SV, the IMEI-TAC or IMEI-TAC SV list can be configured as a blacklist or a whitelist. When it is configured as a blacklist, the exempted IMEI or IMEISV list can be configured to allow the access, even if its TAC or TAC SV is configured in the IMEI-TAC or IMEI-TAC SV blacklist. 
+
+If a UE device type is specified by the IMEI-TAC in one device group, and is also specified by the IMEI-TAC SV in another device group, the preference is given to the IMEI-TAC SV in the following cases:
+
+■The reject cause code is sent based on the configuration of the IMEI-TAC SV.
+■The exempted IMEI or IMEISV list is based on the restriction of IMEI-TAC SV.
+The Roaming Restrictions Based on IMSI Number Series functionality and the Roaming Restrictions Based on IMEI-TAC or IMEI-TAC SV functionality can also be used separately.
+
+If a UE is with an emergency PDN connection, the Roaming Restrictions is bypassed. When the UE with the emergency PDN connection enters the restricted areas, all non-emergency PDN connections are removed, and the emergency PDN connection is kept.
+
+For more information on how to configure Roaming Restrictions, see Configuring Roaming Restrictions.
+
+Table 5 presents the operator-configured cause codes which are returned when an Attach, TAU, or X2-based Handover procedure is rejected.
+
+Table 5    Roaming Restriction Cause Codes for Rejection of Attach, TAU, or X2-Based Handover Cause code #11
+ PLMN not allowed
+ 
+Cause code #12
+ Tracking area not allowed
+ 
+Cause code #13
+ Roaming not allowed in this tracking area
+ 
+Cause code #14
+ EPS services not allowed in this PLMN
+ 
+Cause code #15
+ No suitable cells in tracking area
+ 
+
+Table 6 presents the default cause code which is returned to the source MME when an S1-based Handover procedure is rejected.
+
+Table 6    Roaming Restriction Cause Code for Rejection of S1-Based Handover Procedures Cause code #81
+ Relocation failure
+ 
+
+Table 7 presents the default cause code which is sent to the source eNodeB when an S1-based Handover procedure is rejected, or to the target eNodeB when an X2-based Handover procedure is rejected.
+
+Table 7    Roaming Restriction Cause Code for Rejection of S1-Based Handover Procedures or X2-Based Handover Procedures Cause code
+ Handover failure in target EPC/eNodeB or target system
+ 
+
+In the case of IMS Emergency Service, roaming restrictions are ignored.
+
+15.2   Access Restrictions
+The license-controlled feature Access Restriction ensures that subscribers that are not allowed to access the LTE or the NB-IoT network are restricted from access. There are two ways to achieve this:
+
+■Analyzing the Access Restriction Data IE received from the HSS
+■Analyzing the IMSI Number received from the UE
+Access restrictions are ignored for a UE with an emergency PDN connection. However, during mobility procedures, non-emergency PDN connections are removed if the UE is access-restricted.
+
+Access restriction control is performed in the following three cases:
+
+■When the MME receives an Update Location Answer message including the Access Restriction Data IE during a UE-initiated Attach or Inter-MME TAU procedure.
+If a subscriber is restricted from accessing the requested network, the MME sends an appropriate reject message to the UE with a cause code.
+
+■When the MME receives an Insert Subscriber Data Request message including the Access Restriction Data IE from the HSS.
+If a subscriber is restricted from accessing the requested network, the MME sends a detach message to the UE with a cause code.
+
+■When a UE is accessing the MME.
+It is possible to define IMSI number series restricting a UE to access the LTE or the NB-IoT network. The MME analyzes the IMSI number of the UE to check if the IMSI number is allowed.
+
+For more information on the cause codes that are sent with a reject or detach message, refer to Troubleshooting. Access restriction control requires that the HSS has coherent support for the Access Restriction Data IE.
+
+If the UE is restricted from accessing the LTE or the NB-IoT network, the MME sends an appropriate reject message to the UE with a configured cause code. For more information, see Troubleshooting.
+
+The MME can be configured to handle an emergency PDN connection from an unknown UE. However, this depends the emergency profile configuration of the MME. This behavior is related to the IMEI Check feature. For more information, see IMEI Check (CLI) and Security.
+
+15.3   Subscription-Based Restrictions
+The licensed feature Subscription-Based Restrictions allows operators to regulate access to the LTE network on a subscriber level, and consists of the following two functions:
+
+■Operator Determined Barring (ODB) Support for PS Service
+■Regional Subscription
+15.3.1   ODB Support for PS Service
+The barring of PS services is applied to the subscribers when the subscription restriction control is performed. The subscription restriction control is performed when the MME receives a message carrying the ODB category All Packet Oriented Services Barred:
+
+■When the MME receives an Update Location Answer message carrying the ODB category from the HSS during a UE-initiated Attach procedure, the MME rejects the attach procedure with a cause code.
+■When the MME receives an Update Location Answer message carrying the ODB category during an Inter-MME TAU procedure, the MME accepts the TAU procedure first and then immediately detaches the UE with a cause code.
+■When the MME receives an Insert Subscriber Data Request message carrying the ODB category from the HSS, the MME detaches the UE with a cause code.
+Table 8 presents the cause code that is used for subscription restriction control for a home subscriber and a roaming subscriber.
+
+Table 8    Cause Codes Used for Subscription Restriction Control Subscriber
+ Configuration of odb_attach_reject_nas_cc_remap
+ Cause Code
+ Description
+ 
+Home subscriber
+ on
+ Cause code #15
+ No suitable cells in tracking area
+ 
+off
+ Cause code #14
+ EPS services not allowed in this PLMN
+ 
+Roaming subscriber
+ N/A
+ Cause code #14
+ EPS services not allowed in this PLMN
+ 
+
+For these ODB subscribers whose access to PS service is regulated, all APNs are blocked. An ODB-free APN list can be configured to define up to 50 APNs that ODB subscribers can access. The ODB subscribers can still access the APNs in the ODB-free APN list when the following conditions are true:
+
+■The FeatureState parameter is set to ACTIVATED for the subscription_restriction parameter.
+■The FunctionState parameter is set to on for the odb_allowed_apn_list parameter.
+■The APNs that are configured in the ODB-free APN list also exist in the HSS subscription data.
+The MME blocks all APNs except the APNs that are configured in the ODB-free APN list. When the ODB-free APN list is empty, all APNs are blocked. The ODB-free APN list is applicable for both home subscribers and roaming subscribers.
+
+Note:  To apply the ODB-free APN list to roaming subscribers, set the FunctionState parameter to on for the odb_allowed_apn_list_for_roaming_subscriber parameter.
+The ODB function is not applicable to the emergency service.
+
+
+
+For more information on configuring ODB, see Configuring Session and Mobility Management.
+
+15.3.2   Regional Subscription
+The Regional Subscription feature defines regional subscription areas (regions) where access is either allowed or restricted for a specific subscriber. The regions are identified by regional subscription zone identities, containing zone codes (ZCs), configured for each subscriber in the HSS. In the MME, each ZC is associated with one or several Geographical Areas (GAs), where each GA represents a Tracking Area (TA), a set of TAs, or a complete PLMN, defining the regions where the subscriber is allowed or restricted.
+
+The subscription data requested from the HSS by the MME for a subscriber contains a list of ZCs that apply to the subscriber within the current PLMN. If the SGSN-MME does not receive any ZC information in the subscription data, or receives a ZC that does not correspond to the ZC configured for the regional subscription area, then regional subscriptions do not apply.
+
+Note:  Regional subscription restrictions are not applicable to emergency services, and are only applicable to the S6a interface.
+
+
+Some applications of regional subscription include:
+
+■Restrict part of a PLMN and allow the rest of the PLMN implicitly
+■Allow part of a PLMN, and restrict the rest of the PLMN implicitly
+■Override roaming restrictions in a PLMN
+■Prevent access to an external PLMN
+For more information on configuring regional subscription, see Configuring Regional Subscription.
+
+Regional subscription control is performed when the UE performs a mobility procedure (for example, attach, TAU, and handover procedures). If the UE is restricted by regional subscription control, the mobility procedure is rejected and a cause code is returned to the UE. Table 9 presents the cause code that is used for regional subscription control for a home subscriber and a roaming subscriber.
+
+Table 9    Cause Codes Used for Regional Subscription Control Subscriber
+ Cause Code
+ Description
+ 
+Home subscriber
+ Cause code #15
+ No suitable cells in tracking area
+ 
+Roaming subscriber
+ Cause code #13
+ Roaming not allowed in this tracking area
+ 
+
+Regional subscription data is requested from the HSS by the MME, and the following occurs:
+
+■When the MME receives an Update Location Answer message from the HSS, the message can include ZCs. If the MME receives ZCs from the HSS, the MME compares the received ZCs with any ZCs in the regional subscription configuration in the MME, and decides if the subscriber gets access.
+■When the MME receives an Insert Subscriber Data Request message from the HSS, the message can include ZCs. If the MME receives ZCs from the HSS, the MME compares the received ZCs with any ZCs in the regional subscription configuration in the MME, and decides if the subscriber gets access.
+■When the MME receives a Delete Subscriber Data Request message with the Regional Subscription Withdrawal bit 0 set to 1, the MME deletes the ZCs stored in the subscription data.
+Note:  The list of Forbidden TAs in the Handover Restriction List (HRL) is completely based on the Roaming Restriction configuration. If the eNodeB initiates a handover procedure based on the HRL at any time, the handover is managed by the MME in an appropriate manner.
+
+
+If the licensed feature Subscription-Based Restrictions is granted, the SGSN-MME sets the Regional Subscription feature bit in the Feature-List AVP, regardless of the feature state of regional_subscription.
+
+15.4   Handover Restriction List
+The Handover Restriction List IE can be included in Initial Context Setup Request, Handover Request, and S1-AP Downlink NAS Transport messages, which steers a UE in ECM-CONNECTED state into selecting a target PLMN during handover procedures.
+
+The Handover Restriction List IE can include the following IEs:
+
+Serving PLMN IE This IE is mandatory and it contains the UEs current PLMN. 
+ 
+Equivalent PLMNs IE This IE is included only if it is configured in the MME. 
+ 
+Forbidden TAs IE This IE is included only if it is configured in the MME, and the Roaming Restrictions feature and the Regional Subscription feature are activated. 
+ 
+Forbidden LAs IE This IE is included only if it is configured in the MME, and the Roaming Restrictions feature and the Regional Subscription feature are activated. 
+ 
+Forbidden inter-RATs IE This IE is included if the Access Restriction feature is activated and the access restriction data is available in the subscription data. 
+ 
+
+For information on the configuration of Allowed PLMNs, Forbidden TAs and Forbidden LAs, see Configuring a Handover Restriction List for LTE Access.
+
+15.5   Reject Cause Code for Undefined IMSI Number Series
+It is possible to configure the Reject Cause Code sent to the UE during initial Attach and TAU procedures when the IMSI number series is not defined in the MME. For more information, see Configuring Session and Mobility Management.
+
+15.6   CSG Restrictions
+The MME checks if CSG restrictions apply when the license-controlled feature MME Support for Closed Subscriber Group is enabled and the UE is accessing a CSG cell. If the CSG ID for the CSG cell is included in the CSG subscription data for the UE and the CSG ID does not expire, the UE is permitted to access the CSG cell. Otherwise, the UE is rejected. If the UE is using IMS Emergency Service or emergency is indicated in the Extended Service request message, the UE is not rejected because of CSG restrictions. If the UE is using IMS Emergency Service, non-emergency bearers are deleted.
+
+CSG restrictions apply to the following procedures:
+
+■Attach
+■Detach
+■Service Request
+■Extended Service Request
+■TAU
+■Handover
+Note:  The MME does not support retrieving CSG subscription data from the HSS for another PLMN than the registered PLMN.
+Therefore, during X2-Based Handover, if the target cell for the Handover is located in another PLMN, the CSG check fails and a Path Switch Request Failure (PSRF) is sent to the target Home eNodeB. The UE is detached with reattach required. The UE is CSG restricted if applicable in the following Attach based on CSG Subscription data valid for the new PLMN.
+
+During the same conditions, for S1-Based Handover, the Source MME sends a Handover Preparation Failure to the Source Home eNodeB.
+
+
+
+Table 10 presents the cause code sent to the UE when a mobility procedure is rejected owing to CSG restrictions.
+
+Table 10    CSG Restriction Cause Code Sent to UE Cause code #25
+ NOT_AUTHORIZED_FOR_THIS_CSG
+ 
+
+Table 11 presents the cause code sent to the HeNB/HeNB GW when a mobility procedure is rejected owing to CSG restrictions.
+
+Table 11    CSG Restriction Cause Code Sent to the HeNB or HenBGW Cause code #38
+ INVALID_CSG_ID
+ 
+
+For information on CSG restrictions, see Closed Subscriber Group and EBM Cause Codes.
+
+15.7   Inter-PLMN Mobility Restriction
+The Inter-PLMN Mobility Restriction function blocks the received TAU requests during Inter-MME TAU procedures. The Inter-PLMN Mobility Restriction function also applies to the ISC SGSN-MME TAU procedures. For more information, see Inter-System Mobility Management.
+
+When the MME receives a TAU Request from the UE, the MME checks if the Inter-PLMN Mobility Restriction applies and derives the PLMN from old GUTI that is included in the TAU Request message. If the PLMN is restricted in the following scenarios, the MME rejects the TAU Request with a reject message containing the EMM cause code UE_identity_cannot_be_derived_by_the_network.
+
+■The old PLMN is not native to the SGSN-MME and the old PLMN is in the Inter-PLMN Mobility Restriction blacklist.
+■The old PLMN is not native to the SGSN-MME and the old PLMN is not in the Inter-PLMN Mobility Restriction whitelist.
+■The old PLMN is not native to the SGSN- MME and no PLMN is configured for the Inter-PLMN Mobility Restriction. 
+Note:  It is not possible for the user to configure a PLMN both in the local PLMN list and the Inter-PLMN Restriction list.
+
+
+For information on the configuration of Inter-PLMN Mobility Restriction, see Configuring Session and Mobility Management.
+
+16   Serving Network Change Report to GW
+The Serving Network IE contains the serving PLMN. If the ServingNetworkChangeReport parameter is set to on, and the UE-serving PLMN is changed during the TAU without SGW Relocation, Service Request, and Handover procedures, the MME includes the Serving Network IE (containing the current UE-serving PLMN) in the Modify Bearer Request message to notify the SGW of the serving PLMN change.
+
+During an inter-MME handover procedure, the source MME includes the Serving Network IE (containing the current UE-serving PLMN) and selected PLMN ID in the Forward Relocation Request message. The target MME includes the Serving Network IE in the Modify Bearer Request message to inform the SGW of the change of the Serving Network if the following conditions are true:
+
+■The ServingNetworkChangeReport parameter is set to on.
+■The current Serving Network for the PDN has not been reported to the SGW yet.
+17   Network-provided Location
+As the IMS requests the ULI information (last known ULI, ULI time stamp, and UE time zone) of the UE, the session management messages sent from the MME to SGW contain the ULI, ULI Timestamp, and UE Time Zone IEs in the following procedures: 
+
+■LTE mobility management 
+■LTE session management 
+■SRVCC 
+That is, the MME notifies the SGW of the last known ULI, ULI time stamp, and UE time zone. Then the ULI information is forwarded to the PGW, PCRF, and IMS, as described in Figure 30.
+
+
+
+Figure 30   ULI Information
+
+The ULI information provided in this way (PCC-based network location) has the following benefits:
+
+■Determine the network location of the UE during emergency calls
+■Provide location-based charging for the IMS voice services
+■Reduce HSS interactions and minimize the additional signaling
+17.1   Network-provided Location in Mobility Management Procedures
+The MME notifies the SGW of the last known ULI, ULI time stamp, and UE time zone through the Create Session Request and Delete Session Request messages in the following mobility management procedures:
+
+■UE-initiated Attach
+■UE-initiated Detach
+■MME-initiated Detach
+■HSS-initiated Detach
+■TAU with SGW Relocation
+■X2-based Handover with SGW Relocation
+■S1-based Handover with SGW Relocation
+■RAU to S4-SGSN with SGW Relocation
+■IRAT Handover from LTE to WCDMA over Gn
+■IRAT Handover from LTE to WCDMA with SGW Relocation
+Note:  The Create Session Request message does not include the ULI Timestamp IE. The Create Session Request message in the S1-based Handover with SGW Relocation procedure only includes the UE Time Zone IE.
+
+
+Also, if the ULI information (ECGI and TAI) is included in the UE Context Release Complete message in the S1 release procedure, the MME stores the ULI information.
+
+17.2   Network-provided Location in Session Management Procedures
+The MME notifies the SGW of the last known ULI, ULI time stamp, and UE time zone through the Create Bearer Response, Update Bearer Response, Delete Bearer Response, Delete Bearer Command, Create Session Request, and Delete Session Request messages in the following session management procedures:
+
+■Activation of dedicated bearers
+■PGW-initiated Bearer Modification with Bearer QoS Update
+■HSS-initiated Subscribed QoS Modification
+■PGW-initiated Bearer Modification without Bearer QoS Update
+■MME-initiated Deactivation of Bearers
+■PGW-initiated Deactivation of Bearers
+■MME-initiated PDN Disconnection
+■UE-initiated PDN Disconnection
+■UE-requested PDN Connectivity
+Note:  The Create Session Request, Create Bearer Response, and Update Bearer Response messages only include the ULI and UE Time Zone IEs. The UE Time Zone is included in the Delete Session Request message only if the operation Indication is set and the UE time zone is changed.
+
+
+Also, if the ULI information (ECGI and TAI) is included in the E-RAB Release Response or the E-RAB Release Indication message in the following procedures, the MME stores the ULI information.
+
+■MME-initiated Deactivation of Bearers
+■PGW-initiated Deactivation of Bearers
+■MME-initiated PDN Disconnection
+For more information about the session management procedures, see LTE Session Management.
+
+17.3   Network-provided Location in SRVCC Procedures
+The MME notifies the SGW of the last known ULI, ULI time stamp, and UE time zone through the Delete Bearer Command, Delete Bearer Response, and Delete Session Request messages in the following SRVCC procedures:
+
+■SRVCC Procedure to UTRAN with PS Handover
+■SRVCC Procedure to UTRAN/GERAN with DTM Support
+For more information about SRVCC procedures, see EPS Support for CS Services.
+
+18   Network Names and Time Zones
+Network Names is a basic function that allows sending both full and short network names to the UE. For information about configuring the network names, see PLMN Identification (CLI).
+
+The Time Zones function sends the UE's local time zone to the SGW, which enables time-based charging in the SGW, PGW, or both. For more information about configuring the Time Zones function, see Configuring GSM and WCDMA Time Zones and Configuring LTE Time Zones.
+
+18.1   Time Zones
+The TAs of a PLMN can be deployed over a geographically large area which can span over more than one time zones. The Time Zones function provides the UE with the local time of the geographical area where the UE is located, for example, at Attach.
+
+Local time is defined by assigning a time zone to a geographical area in the local MME configuration. When the UE moves between TAs, the MME checks if there is a change in the local time zone of the UE and updates the UE if it has changed.
+
+The MME can send the UE local time zone to the SGW or another MME by including the UE Time Zone IE in the following GTPv2 messages:
+
+■Create Session Request
+■Create Bearer Response
+■Modify Bearer Request
+■Update Bearer Response
+■Delete Bearer Response
+■Context Response
+■Forward Relocation Request
+During the TAU and Service Request procedures, the MME includes the UE time zone IE in the Modify Bearer Request message sent to the SGW when the UE local time zone changes.
+
+Upon the Daylight Saving Time (DST) flag changes for a time zone, the MME starts the ServiceReqDeferredDuration timer for the time zone if the ServiceReqDeferredReport is set to on. Before this timer expires, the MME tries to defer the DST change reporting in the service request procedure for UEs in the GA with the time zone. When the first Service Request message from a UE is received and the UE's ULI does not change, the MME generates a randomized time stamp between the current time and the DST change time plus the ServiceReqDeferredDuration value for the UE. If the randomized time stamp equals the current time, the MME reports the DST changes immediately to the SGW through the Modify Bearer Request message in the first service request procedure. Otherwise, the MME defers the DST reporting to the SGW until the randomized time stamp has reached, UE sends another Service Request message and the DST change has not been reported in other procedures.
+
+The DST change reporting in other procedures, such as the attach, TAU, and handover procedures, is handled in the normal way and are not affected by the deferring DST change reporting function.
+
+When the ServiceReqDeferredDuration timer expires, the MME handles the DST change reporting in the service request procedure in the normal way.
+
+The deferring DST change reporting function is also applicable for the UE restoration upon the service request procedure. For more information, see Geographically Redundant Pool.
+
+19   TAI List
+A TAI list consists of TAIs, representing the TAs that the UE can enter without initiating a TAU procedure. Based on configuration, the TAI list is created based on either the visited TAIs (see Section 19.1) or the TAC list received from the DNS (see Section 19.2).
+
+The SGSN-MME creates a TAI list and sends it to the UE, included in the Attach Accept and TAU Accept messages. If the TAI list is changed, the new version is sent to the UE at periodic TAU procedures.
+
+For more information on how to configure TAI list options, see Configuring Session and Mobility Management.
+
+19.1   TAI List Based on Visited TAIs
+The TAI list includes the current TAI and the previously visited TAIs. At an Attach or TAU, the current TAI, and if received, the last visited TAI are added to the list, if they are not included in the list yet. If they are already included, the time stamp is updated. The time stamp indicates the last time the UE visited a specific TAI. The time stamp is also updated when there is signaling from the UE.
+
+The maximum number of TAIs on a TAI list is 16, including the current TAI. If the list has reached the maximum number, the oldest TAI is removed from the list.
+
+The maximum length of the TAI list can be changed by giving the MaxTaiListLength parameter a new value (1-16). If the MaxTaiListLength parameter is set to "1", only the current TAI is included in the list ("1" is the default value of the parameter). If the parameter is set to "2", the last visited TAI is also included in the list.
+
+A TAI is removed from the TAI list if its age, based on the time stamp, exceeds the value defined by the MaxTaiAge parameter. In this case, the TAI is removed when the next TAU or Attach procedure is performed (the TAI list is not updated during a Paging procedure).
+
+The SGSN-MME creates and updates the TAI list and checks it for inconsistency using the current TAI as reference. The TAI list must fulfill the following criteria:
+
+■All TAs must be served by the same SGSN-MME.
+■All TAs with configured Wi-Fi UE Locator information must be served by the same Wi-Fi UE Locator.
+Note:  This is only applicable if the Wi-Fi Integration feature is enabled. For more information, see Wi-Fi Integration.
+
+
+■The LA selected for the current TAI must be selected for all the other TAIs in the TAI list.
+Note:  This is only applicable if the SGs interface is used. For more information, see EPS Support for CS Services.
+
+
+■All TAs must belong to the same PLMN.
+■All TAs must have the same Time Zone name.
+■All TAs must have the same set of Equivalent PLMNs for the actual UE.
+Note:  This is only applicable if the Selective Equivalent PLMN feature is used.
+
+
+■The UE must have roaming access to all TAs on the list.
+■All TAs must be served by the currently used SGW.
+■All TAs must belong to the same location-based IP address allocation area or all TAs must belong to a normal area.
+Note:  This is only applicable if the Location Based IP Address Allocation feature is used.
+
+
+If no inconsistencies are found, the SGSN-MME sends a TAI List IE to the UE. If inconsistencies are found, the faulty TAIs are removed from the TAI list before the list is sent to the UE.
+
+19.2   TAI List Based on TAC List from DNS
+The Tracking Area Code (TAC) list is defined in the DNS. The SGSN-MME performs a DNS U-NAPTR query to retrieve a TAC list for the current TA. The SGSN-MME converts the TAC list into a TAI list. Duplicate TACs in the TAC list are removed. For information on the U-NAPTR procedure, see the following:
+
+■IETF RFC3402
+■IETF RFC3403
+■IETF RFC4848 (an extension of IETF RFC3958)
+The maximum allowed length for the TAC list is 14 entries. If the TAC received from the DNS is longer than 14 entries, the list is truncated. This leaves two free entries on the TAI list, which are used for the current TAI and the last visited TAI if they are not included in the list of TACs received from the DNS.
+
+20   T-ADS Procedure
+Terminating Access Domain Selection (T-ADS) procedures are used for 3GPP mobility when the IMS-Based Telephony (MMTel) feature is used on the LTE side.
+
+To determine whether to route a voice call to CS or PS access, the Service Centralization and Continuity Application Server (SCCAS) must know whether the UE that is registered in the IMS is currently camping on an IMS Voice over PS capable access. For this purpose, network-based T-ADS is used. The T-ADS procedures provide the HSS with the time stamp of the UE's current TA and the associated RAT Type, and an indication of whether IMS Voice over PS is supported in the current TA.
+
+21   Automatic Device Detection for LTE
+The Automatic Device Detection (ADD) function for LTE enables a timely update of a UE’s latest IMEISV in the MME. 
+
+If the security functions are not performed, even if having an IMEISV stored in the UE context, the MME fetches the latest IMEISV by using the Identity Request and Identity Response messages. The ADD function for LTE is performed during the attach procedure, and can also be performed during the following mobility procedures, depending on the configuration of the ImeiRefetchEnabled parameter.
+
+■Inter-MME TAU
+■Inter-MME handover
+■IRAT Handover from WCDMA to LTE over S3
+■IRAT Handover from WCDMA to LTE over Gn
+Once the MME detects that the IMEISV of a UE changes, the MME updates the HSS and the SGW with the new IMEISV. The HSS is updated by an Update Location Request or a Notify Request message. The SGW is updated by the Modify Bearer Request and Create Session Request messages.
+
+For information about how to configure the ADD function for LTE, see Configuring Session and Mobility Management.
+
+Network Impact 
+
+When the ADD function is enabled, the MEI IE is added in the Modify Bearer Request message during the affected procedures when both of the following conditions are met. 
+
+■The MeiInModifyBearerReq parameter is set to on.
+■The IMEISV of a UE changes.
+The SGW should also support the MEI IE in the Modify Bearer Request message over the S11 interface.
+
+22   Multiple SIM Subscription
+22.1   Multiple SIM Support
+The SGSN-MME supports mobile subscribers with multiple devices and IMSI numbers using the same MSISDN during a mobility management procedure. 
+
+22.2   Additional MSISDN Support
+The SGSN-MME supports Additional MSISDN (A-MSISDN), which is available for multiple SIM subscriptions. For SRVCC procedures, a unique A-MSISDN can be defined in the subscription data in the HSS for each SIM, in addition to the common MSISDN.
+
+The SGSN-MME indicates support for A-MSISDN by setting bit 31 in the Feature-List-ID 1 Attribute-Value Pair (AVP) in the following messages sent to the HSS over the S6a interface:
+
+■Update Location Request
+■Insert Subscriber Data Answer
+■Delete Subscriber Data Answer
+The HSS sends the A-MSISDN in a Subscription Data AVP in Update Location Answer and Insert Subscriber Data Request messages.
+
+If an A-MSISDN is available, the source SGSN-MME uses it instead of the common MSISDN. In this case, A-MSISDN is used as the Correlation MSISDN (C-MSISDN) in SRVCC and PS Handover procedures over the following interfaces:
+
+■Sv (SRVCC PS to CS Request)
+■S3 (Forward Relocation Request)
+■S10 (Forward Relocation Request)
+During an SRVCC procedure, using A-MSISDN as the C-MSISDN, enables Mobile Switching Center (MSC) to transfer the correct call anchored in the IMS.
+
+The SGSN-MME also supports the A-MSISDN Withdrawal bit 16, in AVP Delete-Subscriber-Data-Request Flags (DSR-Flags) to the HSS, which triggers the SGSN-MME to delete an A-MSISDN from the UE context.
+
+23   Resilience and Overload Protection
+Redundancy and overload protection protect the SGSN-MME from failures and keep the SGSN-MME functional. The recovery and redundancy functions of Resilience provide a non-stop mode of operation of the SGSN-MME, allowing the SGSN-MME to recover from software and hardware failures. This minimizes inconvenience caused to attach subscribers. The overload protection mechanisms in the SGSN-MME protect internal and external resources, and perform traffic prioritization. For more information, see Resilience and Overload Protection.
+
+24   Operation and Maintenance
+24.1   Parameters
+To display the configuration classes and parameters related to LTE Mobility Management, use the get_config_area –can CLI command for the following configuration areas:
+
+■AdaptivePaging
+■ClosedSubscriberGroup
+■EmergencyCall
+■EquivalentPlmn
+■HandoverRestrictionList
+■ImsiNumberSeries
+■InterfaceS1MME
+■InterfaceS11
+■Mps
+■Plmn
+■RegionalSubscription
+■RoamingRestrictions
+■SgsnMme
+■TimeZones
+24.2   Counters
+The following counters and PmGroups are valid for LTE Mobility Management:
+
+■SGSN-MME_Mobility_hho_E
+■SGSN-MME_Mobility_HO_E
+■SGSN-MME_Mobility_MM_E
+■SGSN-MME_Mobility_MM_Hss
+■SGSN-MME_Mobility_UnstableSubscribers
+24.3   Alarms and Events
+The following alarms and events are valid for LTE Mobility Management: 
+
+■nwcMmeEnodebUpdateIncomplete
+24.4   Logs
+The Mobility Event Log is valid for LTE Mobility Management. For descriptions of the log file, refer to Operation and Maintenance Description and Mobility Event Log.
+
+24.5   EBM
+For descriptions of Sub-Cause Codes and EBM Events, refer to EBM Cause Codes and EBM Events and Parameters.
+
+25   Compliance
+For compliance information on 3GPP interfaces, see the following:
+
+■SoC with 3GPP TS 23.401
+■SoC with 3GPP TS 24.301
+■SoC with 3GPP TS 29.272
+■SoC with 3GPP TS 36.413
+
+
+Reference List
+Standards 
+[1] IETF RFC 3402 Dynamic Delegation Discovery System (DDDS) Part Two: The Algorithm, http://www.rfc-editor.org/info/rfc3402 
+[2] IETF RFC 3403 Dynamic Delegation Discovery System (DDDS) Part Three: The Domain Name System (DNS) Database, http://www.rfc-editor.org/info/rfc3403 
+[3] IETF RFC 3958 Domain-Based Application Service Location Using SRV RRs and the Dynamic Delegation Discovery Service (DDDS) http://www.rfc-editor.org/info/rfc3958 
+[4] IETF RFC 4848 Domain-Based Application Service Location Using URIs and the Dynamic Delegation Discovery Service (DDDS) http://www.rfc-editor.org/info/rfc4848 
+
+
+
+Copyright © Ericsson AB 2012–2017. All rights reserved. No part of this document may be reproduced in any form without the written permission of the copyright owner.
+ 
+Disclaimer The contents of this document are subject to revision without notice due to continued progress in methodology, design and manufacturing. Ericsson shall have no liability for any error or damage of any kind resulting from the use of this document.
+ 
+
+
+    LTE Mobility Management     
+    LTE Mobility Management     
+BookmarkSection...Document...Latest...Copy Link toSectionDocumentLatestBookmarkDocument...Latest...
+Bookmark this Document...
+Copy Link to Document (clipboard)
+Copy Link toDocumentLatest
+
+--------------------------------------------------------------------------------
+Search for Documents Using Advanced OptionsSearch for Documents in Library Collection
+Find in Document Frame...
+--------------------------------------------------------------------------------
+
+Show Document Info
+PDF DocumentShowSave...Open in New Window...
+
+--------------------------------------------------------------------------------
+
+Bookmark this Link...
+Copy this Link (clipboard)
+
+--------------------------------------------------------------------------------
+<CTRL + Right-click> to open browser menu
